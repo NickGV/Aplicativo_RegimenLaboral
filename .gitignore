@@ -1,0 +1,57 @@
+env/
+venv/
+ENV/
+VENV/
+*.pyc
+_pycache_/
+
+# Archivos de entorno
+.env
+.env.*
+
+# Archivos de base de datos SQLite (si usas al inicio)
+*.sqlite3
+
+# Archivos de migración generados automáticamente
+*/migrations/_pycache_/
+/migrations/.py[cod]
+/migrations/.py~
+
+# Archivos de log
+*.log
+
+# Archivos de cache / sesiones
+*.pot
+*.mo
+*.log
+*.cache
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de compilación
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Archivos de testing
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+
+# Pytest cache
+.pytest_cache/
+
+# Archivos de editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Otros
+staticfiles/
+node_modules/
