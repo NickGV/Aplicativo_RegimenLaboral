@@ -6,28 +6,9 @@ Aplicación web para la gestión de contratos, cálculos y reportes laborales. P
 
 - **React** (Vite)
 - **React Router DOM**
-- **React Bootstrap** y **Bootstrap**
+- **React Bootstrap**
 - **React Icons**
 
-## Estructura del proyecto
-
-```
-client/
-├── public/
-├── src/
-│   ├── components/
-│   │   └── NavBar/
-│   ├── pages/
-│   │   ├── AuthPage/
-│   │   ├── CalculationsPage/
-│   │   ├── ContractsPage/
-│   │   ├── DashBoard/
-│   │   └── ReportsPage/
-│   └── App.jsx
-├── package.json
-├── vite.config.js
-└── README.md
-```
 
 ## Funcionalidades principales
 
