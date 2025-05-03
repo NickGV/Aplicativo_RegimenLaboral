@@ -5,6 +5,7 @@ import { ContractsPage } from "./pages/ContractsPage/ContractsPage";
 import { ReportsPage } from "./pages/ReportsPage/ReportsPage";
 import { NavBar } from "./components/NavBar/NavBar";
 import { Dashboard } from "./pages/DashBoard/DashBoard";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   return (
