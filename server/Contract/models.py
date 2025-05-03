@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings
+from User.models import User
 
 class Contract(models.Model):
     TIPO_CHOICES = [
@@ -8,11 +8,7 @@ class Contract(models.Model):
         ('obra', 'Por Obra o Labor'),
     ]
 
-    empleado = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='Contracts'
-    )
+    empleado = models.ForeignKey(User, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=100)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
     fecha_inicio = models.DateField()
