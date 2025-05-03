@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthPage } from "./pages/AuthPage/AuthPage";
-import { CalculationsPage } from "./pages/CalculationsPage/CalculationsPage";
+import  CalculationsPage from "./pages/CalculationsPage/CalculationsPage.jsx";
 import { ContractsPage } from "./pages/ContractsPage/ContractsPage";
 import { ReportsPage } from "./pages/ReportsPage/ReportsPage";
 import { NavBar } from "./components/NavBar/NavBar";
