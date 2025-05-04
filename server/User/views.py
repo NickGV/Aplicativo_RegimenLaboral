@@ -17,9 +17,12 @@ class UserListCreateView(generics.ListCreateAPIView):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    # this should create a new User with validated data
-    # return 201 with user info or 400 on validation error
-    return Response({"detail": "register stub"})
+    
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        return Response(UserSerializer(user).data, status=201)
+    return Response(serializer.errors, status=400)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

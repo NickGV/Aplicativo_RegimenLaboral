@@ -14,8 +14,17 @@ class ContractListCreateView(generics.ListCreateAPIView):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def contracts_list_create(request):
-    # GET: list all contracts for the authenticated user
-    # POST: create a new contract linked to request.user
+    if request.method == 'GET':
+        contracts = Contract.objects.filter(user=request.user)
+        serializer = ContractSerializer(contracts, many=True)
+        return Response(serializer.data)
+    
+    if request.method == 'POST':
+        serializer = ContractSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
     return Response({"detail": "contracts_list_create stub"})
 
 @api_view(['GET', 'PUT', 'DELETE'])

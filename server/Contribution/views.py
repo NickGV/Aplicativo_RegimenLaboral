@@ -15,8 +15,9 @@ class ContributionListCreateView(generics.ListCreateAPIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def contributions_list(request):
-    # list all contribution records for request.user
-    return Response({"detail": "contributions_list stub"})
+    contributions = Contribution.objects.filter(user=request.user)
+    serializer = ContributionSerializer(contributions, many=True)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
