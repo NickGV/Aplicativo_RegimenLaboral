@@ -1,3 +1,32 @@
-from django.shortcuts import render
+from rest_framework import generics
+from .models import Contribution
+from .serializers import ContributionSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-# Create your views here.
+class ContributionListCreateView(generics.ListCreateAPIView):
+    queryset = Contribution.objects.all()
+    serializer_class = ContributionSerializer
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def contributions_list(request):
+    # list all contribution records for request.user
+    return Response({"detail": "contributions_list stub"})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def contributions_create(request):
+    # calculate EPS, ARL, pension, cesantias for a given contract
+    # save and return the new record
+    return Response({"detail": "contributions_create stub"})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def contribution_detail(request, id):
+    # retrieve contribution record by id
+    return Response({"detail": "contribution_detail stub"})
