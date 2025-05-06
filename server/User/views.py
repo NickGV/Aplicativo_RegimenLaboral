@@ -4,6 +4,7 @@ from .serializers import UserSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -17,11 +18,18 @@ class UserListCreateView(generics.ListCreateAPIView):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    
+    print("Registering user", request.data)
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        return Response(UserSerializer(user).data, status=201)
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'user': UserSerializer(user).data,
+            'access': str(refresh.access_token),
+        }, status=201)
+        
     return Response(serializer.errors, status=400)
 
 @api_view(['POST'])
