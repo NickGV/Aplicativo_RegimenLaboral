@@ -1,4 +1,4 @@
-import  { createContext, useState } from "react";
+import { createContext, useState } from "react";
 import {
   register,
   login,
@@ -16,6 +16,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const newUser = await register(userData);
       setUser(newUser);
+      const { access } = newUser;
+      localStorage.setItem("token", access);
       setError(null);
     } catch (err) {
       setError(err);
@@ -24,9 +26,12 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogin = async (credentials) => {
     try {
-      return;
+      const { access, user } = await login(credentials);
+      localStorage.setItem("token", access);
+      setUser(user);
+      setError(null);
     } catch (err) {
-      return;
+      setError(err);
     }
   };
 

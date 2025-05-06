@@ -3,7 +3,7 @@ import {
   createContract,
   getContracts,
   getContractDetail,
-} from "../services/contractService";
+} from "../services/contractsService";
 
 export const ContractContext = createContext();
 

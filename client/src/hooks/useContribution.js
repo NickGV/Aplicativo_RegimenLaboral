@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ContributionContext } from "./ContributionProvider";
+import { ContributionContext } from "../context/ContributionProvider";
 
 const useContribution = () => {
   return useContext(ContributionContext);

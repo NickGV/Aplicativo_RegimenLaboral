@@ -18,11 +18,9 @@ class UserListCreateView(generics.ListCreateAPIView):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    print("Registering user", request.data)
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),

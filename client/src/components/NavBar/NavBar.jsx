@@ -1,22 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import "./NavBar.css";
 
 export const NavBar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const location = useLocation();
   const pathname = location.pathname;
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   setIsLoggedIn(!!token);
-  // }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    window.location.href = "/auth/login";
+    window.location.href = "/auth/";
   };
 
   return (

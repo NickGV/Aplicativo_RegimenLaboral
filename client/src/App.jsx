@@ -7,10 +7,8 @@ import { NavBar } from "./components/NavBar/NavBar";
 import { Dashboard } from "./pages/DashBoard/DashBoard";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthProvider } from "./context/AuthProvider";
-import { ContractProvider } from "./context/ContractProvider";
+import { ContractProvider } from "./context/ContractsProvider.jsx";
 import { ContributionProvider } from "./context/ContributionProvider";
-import Register from "./components/Register";
-import Contracts from "./components/Contracts";
 
 function App() {
   return (
@@ -30,8 +28,6 @@ function App() {
               </Routes>
             </div>
           </BrowserRouter>
-          <Register />
-          <Contracts />
         </ContributionProvider>
       </ContractProvider>
     </AuthProvider>

@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -13,10 +11,12 @@ import {
   InputGroup,
 } from "react-bootstrap";
 import { BsEnvelope, BsLock, BsPerson } from "react-icons/bs";
+import useAuth from "../../hooks/useAuth";
 
 export const AuthPage = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const { handleRegister } = useAuth();
 
   // Login form state
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -25,7 +25,8 @@ export const AuthPage = () => {
 
   // Register form state
   const [registerData, setRegisterData] = useState({
-    name: "",
+    username: "",
+    numero_telefono: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -74,13 +75,17 @@ export const AuthPage = () => {
       return;
     }
     try {
-      // const token = await registerUser({...});
-      // localStorage.setItem("token", token);
+      const userData = {
+        username: registerData.username,
+        numero_telefono: registerData.numero_telefono,
+        email: registerData.email,
+        password: registerData.password,
+      };
+      await handleRegister(userData);
       navigate("/dashboard");
-    } catch {
-      setRegisterError(
-        "Error al registrar usuario. Por favor intente de nuevo."
-      );
+    } catch (error) {
+      console.log(error);
+      setRegisterError(error.message);
     } finally {
       setRegisterLoading(false);
     }
@@ -164,9 +169,25 @@ export const AuthPage = () => {
                       </InputGroup.Text>
                       <Form.Control
                         type="text"
-                        name="name"
+                        name="username"
                         placeholder="Juan Pérez"
-                        value={registerData.name}
+                        value={registerData.username}
+                        onChange={handleRegisterChange}
+                        required
+                      />
+                    </InputGroup>
+                  </Form.Group>
+                  <Form.Group className="mb-3" controlId="register-phone">
+                    <Form.Label>Número de Teléfono</Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <BsPerson />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type="text"
+                        name="numero_telefono"
+                        placeholder="1234567890"
+                        value={registerData.numero_telefono}
                         onChange={handleRegisterChange}
                         required
                       />
