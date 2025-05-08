@@ -1,14 +1,27 @@
 import React from "react";
 import { Container, Row, Col, Card, Button, Tab, Tabs } from "react-bootstrap";
 import { BsFileEarmark, BsDownload } from "react-icons/bs";
+import useAuth from "../../hooks/useAuth";
 
 export const ReportsPage = () => {
+  const { user } = useAuth();
+  const userRole = user ? user.rol : null;
+
   return (
     <Container className="p-4">
       <h1 className="mb-4">Reportes</h1>
 
       <Tabs defaultActiveKey="all" id="reports-tabs" className="mb-4">
-        <Tab eventKey="all" title="Todos los reportes"></Tab>
+        <Tab
+          eventKey="all"
+          title="Todos los reportes"
+          disabled={
+            userRole !== "empleador" &&
+            userRole !== "contador" &&
+            userRole !== "asesor_legal" &&
+            userRole !== "entidad_gubernamental"
+          }
+        ></Tab>
         <Tab eventKey="summary" title="Resumen (Próximamente)" disabled></Tab>
       </Tabs>
 
@@ -29,9 +42,14 @@ export const ReportsPage = () => {
                     <small className="text-muted">0 cálculos disponibles</small>
                   </div>
                 </div>
-                <Button variant="outline-secondary">
-                  <BsDownload size={20} />
-                </Button>
+                {(userRole === "empleador" ||
+                  userRole === "contador" ||
+                  userRole === "asesor_legal" ||
+                  userRole === "entidad_gubernamental") && (
+                  <Button variant="outline-secondary">
+                    <BsDownload size={20} />
+                  </Button>
+                )}
               </div>
             </Card.Body>
           </Card>
@@ -55,9 +73,14 @@ export const ReportsPage = () => {
                     </small>
                   </div>
                 </div>
-                <Button variant="outline-secondary">
-                  <BsDownload size={20} />
-                </Button>
+                {(userRole === "empleador" ||
+                  userRole === "contador" ||
+                  userRole === "asesor_legal" ||
+                  userRole === "entidad_gubernamental") && (
+                  <Button variant="outline-secondary">
+                    <BsDownload size={20} />
+                  </Button>
+                )}
               </div>
             </Card.Body>
           </Card>

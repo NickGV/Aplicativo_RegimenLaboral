@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import useAuth from "../../hooks/useAuth";
 import "./NavBar.css";
 
 export const NavBar = () => {
+  const { user, setUser } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const location = useLocation();
@@ -16,6 +18,8 @@ export const NavBar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
     setIsLoggedIn(false);
     window.location.href = "/auth/";
   };
@@ -67,6 +71,16 @@ export const NavBar = () => {
               >
                 Reportes
               </Nav.Link>
+              {user && user.rol === "admin" && (
+                <Nav.Link
+                  as={Link}
+                  to="/usuarios"
+                  active={pathname.startsWith("/usuarios")}
+                  className="fw-bold"
+                >
+                  Usuarios
+                </Nav.Link>
+              )}
             </Nav>
           )}
           <Nav className="ms-auto mb-2 mb-lg-0">

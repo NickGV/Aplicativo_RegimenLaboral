@@ -16,20 +16,19 @@ import useAuth from "../../hooks/useAuth";
 export const AuthPage = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  const { handleRegister } = useAuth();
+  const { handleRegister, handleLogin } = useAuth();
 
-  // Login form state
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
-  // Register form state
   const [registerData, setRegisterData] = useState({
     username: "",
     numero_telefono: "",
     email: "",
     password: "",
     confirmPassword: "",
+    rol: "empleado",
   });
   const [registerError, setRegisterError] = useState("");
   const [registerLoading, setRegisterLoading] = useState(false);
@@ -55,8 +54,8 @@ export const AuthPage = () => {
     setLoginLoading(true);
     setLoginError("");
     try {
-      // const token = await loginUser(loginData);
-      // localStorage.setItem("token", token);
+      const token = await handleLogin(loginData);
+      localStorage.setItem("token", token);
       navigate("/dashboard");
     } catch {
       setLoginError("Credenciales inválidas. Por favor intente de nuevo.");
@@ -80,6 +79,7 @@ export const AuthPage = () => {
         numero_telefono: registerData.numero_telefono,
         email: registerData.email,
         password: registerData.password,
+        rol: registerData.rol,
       };
       await handleRegister(userData);
       navigate("/dashboard");
@@ -243,6 +243,20 @@ export const AuthPage = () => {
                         required
                       />
                     </InputGroup>
+                  </Form.Group>
+                  <Form.Group className="mb-3" controlId="register-role">
+                    <Form.Label>Rol</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="rol"
+                      value={registerData.rol}
+                      onChange={handleRegisterChange}
+                      required
+                    >
+                      <option value="empleado">Empleado</option>
+                      <option value="empleador">Empleador</option>
+                      <option value="admin">Admin</option>
+                    </Form.Control>
                   </Form.Group>
                   <div className="d-grid">
                     <Button

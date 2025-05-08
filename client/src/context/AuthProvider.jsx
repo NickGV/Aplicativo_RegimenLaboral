@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import {
   register,
   login,
@@ -9,15 +9,20 @@ import {
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [error, setError] = useState(null);
+  console.log(user);
 
   const handleRegister = async (userData) => {
     try {
-      const newUser = await register(userData);
-      setUser(newUser);
-      const { access } = newUser;
+      const { access, user } = await register(userData);
+      console.log(user);
+      setUser(user);
       localStorage.setItem("token", access);
+      localStorage.setItem("user", JSON.stringify(user));
       setError(null);
     } catch (err) {
       setError(err);
@@ -28,6 +33,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { access, user } = await login(credentials);
       localStorage.setItem("token", access);
+      localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
       setError(null);
     } catch (err) {
@@ -55,6 +61,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         error,
         handleRegister,
         handleLogin,

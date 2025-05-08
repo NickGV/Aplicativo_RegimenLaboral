@@ -2,14 +2,17 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
 import { BsPeople, BsFileEarmark } from "react-icons/bs";
+import useAuth from "../../hooks/useAuth";
 
 export const Dashboard = () => {
+  const { user } = useAuth();
+  const userRole = user ? user.rol : null;
+
   return (
     <Container className="py-4">
       <h1 className="mb-4">Dashboard</h1>
 
       <Row className="g-4 mb-4">
-        {/* Total Contratos */}
         <Col md={4}>
           <Card className="shadow-sm rounded-3">
             <Card.Body>
@@ -25,7 +28,6 @@ export const Dashboard = () => {
           </Card>
         </Col>
 
-        {/* Cálculos Recientes */}
         <Col md={4}>
           <Card className="shadow-sm rounded-3">
             <Card.Body>
@@ -41,7 +43,6 @@ export const Dashboard = () => {
           </Card>
         </Col>
 
-        {/* Acciones Rápidas */}
         <Col md={4}>
           <Card className="shadow-sm rounded-3">
             <Card.Body>
@@ -49,12 +50,21 @@ export const Dashboard = () => {
                 Acciones Rápidas
               </Card.Subtitle>
               <Form className="mt-3 d-grid gap-2">
-                <Button variant="dark" size="lg">
-                  + Nuevo Contrato
-                </Button>
-                <Button variant="outline-dark" size="lg">
-                  Nuevo Cálculo
-                </Button>
+                {userRole === "empleador" && (
+                  <>
+                    <Button variant="dark" size="lg">
+                      + Nuevo Contrato
+                    </Button>
+                    <Button variant="outline-dark" size="lg">
+                      Nuevo Cálculo
+                    </Button>
+                  </>
+                )}
+                {userRole === "contador" && (
+                  <Button variant="outline-dark" size="lg">
+                    Nuevo Cálculo
+                  </Button>
+                )}
               </Form>
             </Card.Body>
           </Card>
