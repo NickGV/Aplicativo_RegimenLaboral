@@ -1,22 +1,29 @@
-from django.contrib.auth.models import AbstractUser
+# usuarios/models.py
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from .managers import CustomUserManager
 
-class User(AbstractUser):
-    numero_telefono = models.CharField(max_length=20)
+class User(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True, blank=True, null=True)
+    numero_telefono = models.CharField(max_length=20, blank=True)
 
-    groups = models.ManyToManyField(
-        'auth.Group',
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        verbose_name='groups',
+    ROLE_CHOICES = (
+        ('empleado', 'Empleado'),
+        ('empleador', 'Empleador'),
+        ('contador', 'Contador'),
+        ('asesor_legal', 'Asesor Legal'),
+        ('entidad_gubernamental', 'Entidad Gubernamental'),
     )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='custom_user_permissions_set',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions',
-    )
+    rol = models.CharField(max_length=30, choices=ROLE_CHOICES, default='empleado')
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     def __str__(self):
-        return self.nombre_completo 
+        return f"{self.email} - {self.rol}"

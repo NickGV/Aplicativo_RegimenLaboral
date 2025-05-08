@@ -5,6 +5,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from rest_framework.exceptions import AuthenticationFailed
 
 User = get_user_model()
 
@@ -33,9 +35,19 @@ def register(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
-    # this should authenticate credentials and return JWT access & refresh tokens
-    # return 200 with tokens or 401 on failure
-    return Response({"detail": "login stub"})
+    email = request.data.get('email')
+    password = request.data.get('password')
+    print(email, password)
+    user = authenticate(request, username=email, password=password)
+    if not user:
+         raise AuthenticationFailed("Invalid credentials.")
+    
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'user': UserSerializer(user).data,
+        'access': str(refresh.access_token),
+    })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
