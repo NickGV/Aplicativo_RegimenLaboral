@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Modal, FloatingLabel, Row, Col, InputGroup } from 'react-bootstrap';
 import { BiX, BiSave } from 'react-icons/bi';
+import useContract from "../../hooks/useContracts"
 export const ContractForm = ({show, handleClose, agregarContrato}) => {
   const [formData, setFormData] = useState({
     titulo: '',
@@ -10,7 +11,7 @@ export const ContractForm = ({show, handleClose, agregarContrato}) => {
     salario: '',
     descripcion: ''
   });
-
+const {handleCreateContract}= useContract()
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -18,7 +19,7 @@ export const ContractForm = ({show, handleClose, agregarContrato}) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    agregarContrato({
+    handleCreateContract({
       ...formData,
       estado: 'Active',
       id: Date.now() // ID temporal

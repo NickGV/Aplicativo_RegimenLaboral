@@ -17,6 +17,6 @@ class Contract(models.Model):
     descripcion = models.TextField()
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
-
+    Estado= models.CharField(max_length=20)
     def __str__(self):
         return f'{self.titulo} – {self.empleado.username}'
