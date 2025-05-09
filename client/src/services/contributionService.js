@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "localhost:8000/api/contributions/";
+const API_URL = "https://localhost:8000/api/contributions/";
 
 export const createContribution = async (contributionData) => {
   try {
@@ -13,16 +13,36 @@ export const createContribution = async (contributionData) => {
 
 export const getContributions = async () => {
   try {
-    return;
+    const response = await axios.get(API_URL);
+    return response.data;
   } catch (error) {
-    return;
+    throw error.response.data;
   }
 };
 
 export const getContributionDetail = async (id) => {
   try {
-    return;
+    const response = await axios.get(`${API_URL}${id}`);
+    return response.data;
   } catch (error) {
-    return;
+    throw error.response.data;
+  }
+};
+
+export const updateContribution = async (id, contributionData) => {
+  try {
+    const response = await axios.put(`${API_URL}${id}`, contributionData);
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
+export const deleteContribution = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
   }
 };
