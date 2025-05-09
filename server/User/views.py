@@ -1,4 +1,5 @@
-from rest_framework import generics
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, status
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework.decorators import api_view, permission_classes
@@ -7,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.exceptions import AuthenticationFailed
-
 User = get_user_model()
 
 class UserListCreateView(generics.ListCreateAPIView):
@@ -55,10 +55,37 @@ def list_users(request):
     # this should return a list of all users
     return Response({"detail": "list_users stub"})
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def user_detail(request, id):
-    # GET: retrieve user by id
-    # PUT: update user fields
-    # DELETE: delete user account
-    return Response({"detail": "user_detail stub"})
+def retrieve_user(request, id):
+    """
+    GET: devuelve los datos de un usuario dado su ID
+    """
+    user = get_object_or_404(User, id=id)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_user(request, id):
+    """
+    PUT: actualiza los campos del usuario (permitiendo cambios parciales)
+    """
+    user = get_object_or_404(User, id=id)
+    serializer = UserSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request, id):
+    """
+    DELETE: elimina la cuenta de usuario de la base de datos
+    """
+    user = get_object_or_404(User, id=id)
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
