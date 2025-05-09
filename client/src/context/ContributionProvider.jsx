@@ -3,6 +3,8 @@ import {
   createContribution,
   getContributions,
   getContributionDetail,
+  updateContribution,
+  deleteContribution,
 } from "../services/contributionService";
 
 export const ContributionContext = createContext();
@@ -10,33 +12,75 @@ export const ContributionContext = createContext();
 export const ContributionProvider = ({ children }) => {
   const [contributions, setContributions] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleCreateContribution = async (contributionData) => {
     try {
+      setLoading(true);
       const newContribution = await createContribution(contributionData);
-      setContributions((prevContributions) => [
-        ...prevContributions,
-        newContribution,
-      ]);
+      setContributions((prevContributions) => [...prevContributions, newContribution]);
       setError(null);
-    } catch (err) {
-      setError(err);
+    } catch (error) {
+      setError(error.response.data);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGetContributions = async () => {
     try {
-      return;
-    } catch (err) {
-      return;
+      setLoading(true);
+      const contributionsData = await getContributions();
+      setContributions(contributionsData);
+      setError(null);
+    } catch (error) {
+      setError(error.response.data);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGetContributionDetail = async (id) => {
     try {
-      return;
-    } catch (err) {
-      return;
+      setLoading(true);
+      const contributionData = await getContributionDetail(id);
+      return contributionData;
+    } catch (error) {
+      setError(error.response.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateContribution = async (id, contributionData) => {
+    try {
+      setLoading(true);
+      const updatedContribution = await updateContribution(id, contributionData);
+      setContributions((prevContributions) =>
+        prevContributions.map((contribution) =>
+          contribution.id === id ? updatedContribution : contribution
+        )
+      );
+      setError(null);
+    } catch (error) {
+      setError(error.response.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteContribution = async (id) => {
+    try {
+      setLoading(true);
+      await deleteContribution(id);
+      setContributions((prevContributions) =>
+        prevContributions.filter((contribution) => contribution.id !== id)
+      );
+      setError(null);
+    } catch (error) {
+      setError(error.response.data);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,9 +89,12 @@ export const ContributionProvider = ({ children }) => {
       value={{
         contributions,
         error,
+        loading,
         handleCreateContribution,
         handleGetContributions,
         handleGetContributionDetail,
+        handleUpdateContribution,
+        handleDeleteContribution,
       }}
     >
       {children}
