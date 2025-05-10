@@ -4,6 +4,8 @@ import {
   login,
   listUsers,
   userDetail,
+  updateUser,
+  deleteUser,
 } from "../services/authService";
 import axios from "axios";
 
@@ -44,10 +46,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const { access, user, refresh } = await register(userData);
       setUser(user);
-      console.log(access);
       localStorage.setItem("access_token", access);
       localStorage.setItem("refresh_token", refresh);
-
+      localStorage.setItem("user", JSON.stringify(user));
       setError(null);
     } catch (err) {
       setError(err);
@@ -58,12 +59,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const { access, refresh, user } = await login(credentials);
       setUser(user);
-      console.log(access);
-      console.log(refresh);
-      console.log(user);
       localStorage.setItem("access_token", access);
       localStorage.setItem("refresh_token", refresh);
-
       localStorage.setItem("user", JSON.stringify(user));
       setError(null);
     } catch (err) {
@@ -73,17 +70,47 @@ export const AuthProvider = ({ children }) => {
 
   const handleListUsers = async () => {
     try {
-      return;
+      const users = await listUsers();
+      return users;
     } catch (err) {
-      return;
+      setError(err);
+      return null;
     }
   };
 
   const handleUserDetail = async (id) => {
     try {
-      return;
+      const userData = await userDetail(id);
+      return userData;
     } catch (err) {
-      return;
+      setError(err);
+      return null;
+    }
+  };
+
+  const handleUpdateUser = async (id, userData) => {
+    try {
+      const updated = await updateUser(id, userData);
+      setUser(updated);
+      localStorage.setItem("user", JSON.stringify(updated));
+      setError(null);
+      return updated;
+    } catch (err) {
+      setError(err);
+      return null;
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    try {
+      await deleteUser(id);
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      setError(null);
+    } catch (err) {
+      setError(err);
     }
   };
 
@@ -110,6 +137,8 @@ export const AuthProvider = ({ children }) => {
         handleLogin,
         handleListUsers,
         handleUserDetail,
+        handleUpdateUser,
+        handleDeleteUser,
       }}
     >
       {children}

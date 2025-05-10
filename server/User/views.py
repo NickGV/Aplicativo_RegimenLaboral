@@ -52,15 +52,11 @@ def login(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_users(request):
-    # this should return a list of all users
     return Response({"detail": "list_users stub"})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def retrieve_user(request, id):
-    """
-    GET: devuelve los datos de un usuario dado su ID
-    """
     user = get_object_or_404(User, id=id)
     serializer = UserSerializer(user)
     return Response(serializer.data)
@@ -69,9 +65,6 @@ def retrieve_user(request, id):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_user(request, id):
-    """
-    PUT: actualiza los campos del usuario (permitiendo cambios parciales)
-    """
     user = get_object_or_404(User, id=id)
     serializer = UserSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
@@ -83,9 +76,6 @@ def update_user(request, id):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_user(request, id):
-    """
-    DELETE: elimina la cuenta de usuario de la base de datos
-    """
     user = get_object_or_404(User, id=id)
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)

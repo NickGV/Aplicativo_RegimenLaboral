@@ -3,24 +3,37 @@ import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
 import useAuth from "../../hooks/useAuth";
 
 export const UserPage = () => {
-  const { user, setUser } = useAuth();
-
+  const { user, setUser, handleUpdateUser, handleDeleteUser } = useAuth();
   const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState(user);
+
+  if (!user) return <p>No hay usuario logueado.</p>;
 
   const handleEdit = () => {
+    setFormData(user);
     setEditing(true);
   };
 
-  const handleSave = () => {
-    // Aquí puedes agregar la lógica para guardar los cambios
-    console.log("Cambios guardados:", user);
-    setEditing(false);
-    alert("Cambios guardados exitosamente!");
+  const handleSave = async () => {
+    const updated = await handleUpdateUser(user.id, formData);
+    if (updated) {
+      setEditing(false);
+      alert("Cambios guardados exitosamente!");
+    }
   };
 
   const handleLogout = () => {
-    // Aquí puedes agregar la lógica para deslogear al usuario
     setUser(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/auth/";
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("¿Seguro que deseas eliminar tu cuenta?")) {
+      await handleDeleteUser(user.id);
+    }
   };
 
   return (
@@ -32,13 +45,13 @@ export const UserPage = () => {
               <Card.Title>Perfil de usuario</Card.Title>
               {editing ? (
                 <Form>
-                  <Form.Group controlId="name">
+                  <Form.Group controlId="username">
                     <Form.Label>Nombre</Form.Label>
                     <Form.Control
                       type="text"
-                      value={user.name}
+                      value={formData.username}
                       onChange={(e) =>
-                        setUser({ ...user, name: e.target.value })
+                        setFormData({ ...formData, username: e.target.value })
                       }
                     />
                   </Form.Group>
@@ -46,29 +59,32 @@ export const UserPage = () => {
                     <Form.Label>Correo electrónico</Form.Label>
                     <Form.Control
                       type="email"
-                      value={user.email}
+                      value={formData.email}
                       onChange={(e) =>
-                        setUser({ ...user, email: e.target.value })
+                        setFormData({ ...formData, email: e.target.value })
                       }
                     />
                   </Form.Group>
-                  <Form.Group controlId="role">
+                  <Form.Group controlId="rol">
                     <Form.Label>Rol</Form.Label>
                     <Form.Control
                       type="text"
-                      value={user.role}
+                      value={formData.rol}
                       onChange={(e) =>
-                        setUser({ ...user, role: e.target.value })
+                        setFormData({ ...formData, rol: e.target.value })
                       }
                     />
                   </Form.Group>
-                  <Form.Group controlId="phoneNumber">
+                  <Form.Group controlId="numero_telefono">
                     <Form.Label>Teléfono</Form.Label>
                     <Form.Control
                       type="text"
-                      value={user.phoneNumber}
+                      value={formData.numero_telefono}
                       onChange={(e) =>
-                        setUser({ ...user, phoneNumber: e.target.value })
+                        setFormData({
+                          ...formData,
+                          numero_telefono: e.target.value,
+                        })
                       }
                     />
                   </Form.Group>
@@ -78,15 +94,22 @@ export const UserPage = () => {
                 </Form>
               ) : (
                 <div>
-                  <p>Nombre: {user.name}</p>
+                  <p>Nombre: {user.username}</p>
                   <p>Correo electrónico: {user.email}</p>
-                  <p>Rol: {user.role}</p>
-                  <p>Teléfono: {user.phoneNumber}</p>
+                  <p>Rol: {user.rol}</p>
+                  <p>Teléfono: {user.numero_telefono}</p>
                   <Button variant="primary" onClick={handleEdit}>
                     Editar perfil
                   </Button>
                   <Button variant="danger" onClick={handleLogout}>
                     Cerrar sesión
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    onClick={handleDelete}
+                    className="mt-2"
+                  >
+                    Eliminar cuenta
                   </Button>
                 </div>
               )}

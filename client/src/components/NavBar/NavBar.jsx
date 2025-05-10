@@ -12,12 +12,13 @@ export const NavBar = () => {
   const pathname = location.pathname;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
-  }, []);
+  }, [user]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     setUser(null);
     setIsLoggedIn(false);
