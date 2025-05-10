@@ -14,25 +14,54 @@ export const register = async (userData) => {
 export const login = async (credentials) => {
   try {
     const response = await axios.post(`${API_URL}login/`, credentials);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error.response.data;
   }
 };
 
+// Obtener el token de localStorage
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
 export const listUsers = async () => {
   try {
-    return;
+    const response = await axios.get(`${API_URL}`, getAuthHeaders());
+    return response.data;
   } catch (error) {
-    return;
+    throw error.response?.data || error;
   }
 };
 
 export const userDetail = async (id) => {
   try {
-    return;
+    const response = await axios.get(`${API_URL}users/${id}/`, getAuthHeaders());
+    return response.data;
   } catch (error) {
-    return;
+    throw error.response?.data || error;
+  }
+};
+
+export const updateUser = async (id, userData) => {
+  try {
+    const response = await axios.put(`${API_URL}users/${id}/`, userData, getAuthHeaders());
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const deleteUser = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}users/${id}/`, getAuthHeaders());
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
   }
 };

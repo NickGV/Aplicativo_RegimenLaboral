@@ -9,6 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthProvider } from "./context/AuthProvider";
 import { ContractProvider } from "./context/ContractsProvider.jsx";
 import { ContributionProvider } from "./context/ContributionProvider";
+import { UserPage } from './pages/UserPage/UserPage.jsx';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/contratos/*" element={<ContractsPage />} />
                 <Route path="/calculos/*" element={<CalculationsPage />} />
                 <Route path="/reportes/*" element={<ReportsPage />} />
+                <Route path="/info/*" element={<UserPage />} />
               </Routes>
             </div>
           </BrowserRouter>

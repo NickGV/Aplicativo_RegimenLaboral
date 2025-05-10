@@ -1,28 +1,41 @@
-import React, { useState } from 'react';
-import { Form, Button, Modal, FloatingLabel, Row, Col, InputGroup } from 'react-bootstrap';
-import { BiX, BiSave } from 'react-icons/bi';
-import useContract from "../../hooks/useContracts"
-export const ContractForm = ({show, handleClose, agregarContrato}) => {
+import React, { useState } from "react";
+import {
+  Form,
+  Button,
+  Modal,
+  FloatingLabel,
+  Row,
+  Col,
+  InputGroup,
+} from "react-bootstrap";
+import { BiX, BiSave } from "react-icons/bi";
+import useContract from "../../hooks/useContracts";
+import useAuth from "../../hooks/useAuth";
+export const ContractForm = ({ show, handleClose }) => {
   const [formData, setFormData] = useState({
-    titulo: '',
-    tipo: '',
-    fechaInicio: '',
-    fechaFin: '',
-    salario: '',
-    descripcion: ''
+    titulo: "",
+    tipo: "",
+    fecha_inicio: "",
+    fecha_fin: "",
+    salario: "",
+    descripcion: "",
   });
-const {handleCreateContract}= useContract()
+
+  const { user } = useAuth();
+
+  const { handleCreateContract } = useContract();
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     handleCreateContract({
       ...formData,
-      estado: 'Active',
-      id: Date.now() // ID temporal
+      estado: "Active",
+      empleado: user.id,
+      id: Date.now(),
     });
     handleClose();
   };
@@ -32,8 +45,10 @@ const {handleCreateContract}= useContract()
         <Modal.Title>Nuevo Contrato</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="text-muted mb-4">Complete la información para registrar un nuevo contrato</p>
-        
+        <p className="text-muted mb-4">
+          Complete la información para registrar un nuevo contrato
+        </p>
+
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-4">
             <h5>Título del Contrato</h5>
@@ -49,16 +64,16 @@ const {handleCreateContract}= useContract()
 
           <Form.Group className="mb-4">
             <h5>Tipo de Contrato</h5>
-            <Form.Select 
-              name="tipo" 
+            <Form.Select
+              name="tipo"
               required
               value={formData.tipo}
               onChange={handleChange}
             >
               <option value="">Seleccione un tipo</option>
-              <option value="termino_fijo">Término Fijo</option>
-              <option value="termino_indefinido">Término Indefinido</option>
-              <option value="prestacion_servicios">Prestación de Servicios</option>
+              <option value="fijo">Término Fijo</option>
+              <option value="indefinido">Término Indefinido</option>
+              <option value="obra">Obra </option>
             </Form.Select>
           </Form.Group>
 
@@ -67,9 +82,9 @@ const {handleCreateContract}= useContract()
               <h5>Fecha de Inicio</h5>
               <Form.Control
                 type="date"
-                name="fechaInicio"
+                name="fecha_inicio"
                 required
-                value={formData.fechaInicio}
+                value={formData.fecha_inicio}
                 onChange={handleChange}
               />
               <Form.Text className="text-muted">mm/dd/yyyy</Form.Text>
@@ -78,8 +93,8 @@ const {handleCreateContract}= useContract()
               <h5>Fecha de Finalización (opcional)</h5>
               <Form.Control
                 type="date"
-                name="fechaFin"
-                value={formData.fechaFin}
+                name="fecha_fin"
+                value={formData.fecha_fin}
                 onChange={handleChange}
               />
               <Form.Text className="text-muted">mm/dd/yyyy</Form.Text>
@@ -107,7 +122,7 @@ const {handleCreateContract}= useContract()
               <Form.Control
                 as="textarea"
                 name="descripcion"
-                style={{ height: '100px' }}
+                style={{ height: "100px" }}
                 value={formData.descripcion}
                 onChange={handleChange}
               />

@@ -12,12 +12,13 @@ export const NavBar = () => {
   const pathname = location.pathname;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
-  }, []);
+  }, [user]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     setUser(null);
     setIsLoggedIn(false);
@@ -83,32 +84,43 @@ export const NavBar = () => {
               )}
             </Nav>
           )}
-          <Nav className="ms-auto mb-2 mb-lg-0">
+          <Nav className="ms-auto mb-2 mb-lg-0 d-flex align-items-center gap-2">
             {isLoggedIn ? (
-              <Button
-                variant="outline-secondary"
-                className="d-flex align-items-center"
-                onClick={handleLogout}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-box-arrow-right me-2"
-                  viewBox="0 0 16 16"
+              <>
+                <Nav.Link
+                  as={Link}
+                  to="/info"
+                  active={pathname === "/info"}
+                  variant="outline-secondary"
+                  className="d-flex align-items-center"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M6 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-1a.5.5 0 0 1 1 0v1h6V3H7v1a.5.5 0 0 1-1 0V3z"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H9.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"
-                  />
-                </svg>
-                <span>Cerrar sesión</span>
-              </Button>
+                  👤
+                </Nav.Link>
+                <Button
+                  variant="outline-secondary"
+                  className="d-flex align-items-center"
+                  onClick={handleLogout}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                    className="bi bi-box-arrow-right me-2"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M6 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-1a.5.5 0 0 1 1 0v1h6V3H7v1a.5.5 0 0 1-1 0V3z"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H9.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"
+                    />
+                  </svg>
+                  <span>Cerrar sesión</span>
+                </Button>
+              </>
             ) : (
               <Button as={Link} to="/auth" variant="dark">
                 Iniciar Sesión

@@ -14,6 +14,7 @@ export const ContractProvider = ({ children }) => {
   const [selectedContract, setSelectedContract] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token");
 
   const handleGetContracts = async () => {
     setLoading(true);
@@ -63,18 +64,18 @@ export const ContractProvider = ({ children }) => {
   const handleTerminateContract = async (id, terminationDate) => {
     try {
       await terminateContract(id, terminationDate);
-      setContracts((prev) =>
-        prev.filter((contract) => contract.id !== id)
-      );
+      setContracts((prev) => prev.filter((contract) => contract.id !== id));
       setError(null);
     } catch (error) {
       setError(error);
     }
   };
 
-  useEffect(() => {
-    handleGetContracts();
-  }, []);
+  // useEffect(() => {
+  //   if (token) {
+  //     handleGetContracts();
+  //   }
+  // }, [token]);
 
   return (
     <ContractContext.Provider

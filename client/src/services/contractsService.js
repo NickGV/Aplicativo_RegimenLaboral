@@ -2,9 +2,9 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8000/api/contracts/";
 
-// Obtener token de localStorage
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
+
   return {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -13,6 +13,8 @@ const getAuthHeaders = () => {
 };
 
 export const createContract = async (contractData) => {
+  // console.log('createContract', contractData);
+  // console.log(getAuthHeaders());
   try {
     const response = await axios.post(
       `${API_URL}create/`,
@@ -58,13 +60,10 @@ export const updateContract = async (id, updatedData) => {
 
 export const terminateContract = async (id, terminationDate) => {
   try {
-    const response = await axios.delete(
-      `${API_URL}${id}/terminate/`,
-      {
-        ...getAuthHeaders(),
-        data: { termination_date: terminationDate },
-      }
-    );
+    const response = await axios.delete(`${API_URL}${id}/terminate/`, {
+      ...getAuthHeaders(),
+      data: { termination_date: terminationDate },
+    });
     return response.data;
   } catch (error) {
     throw error.response.data;
