@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
+import useAuth from "../../hooks/useAuth";
 
 export const UserPage = () => {
-  const [user, setUser] = useState({
-    name: "Juan Pérez",
-    email: "juan.perez@example.com",
-    role: "Empleado",
-    phoneNumber: "123-456-7890",
-  });
+  const { user, setUser } = useAuth();
 
   const [editing, setEditing] = useState(false);
 
@@ -17,7 +13,9 @@ export const UserPage = () => {
 
   const handleSave = () => {
     // Aquí puedes agregar la lógica para guardar los cambios
+    console.log("Cambios guardados:", user);
     setEditing(false);
+    alert("Cambios guardados exitosamente!");
   };
 
   const handleLogout = () => {
@@ -39,7 +37,9 @@ export const UserPage = () => {
                     <Form.Control
                       type="text"
                       value={user.name}
-                      onChange={(e) => setUser({ ...user, name: e.target.value })}
+                      onChange={(e) =>
+                        setUser({ ...user, name: e.target.value })
+                      }
                     />
                   </Form.Group>
                   <Form.Group controlId="email">
@@ -47,7 +47,9 @@ export const UserPage = () => {
                     <Form.Control
                       type="email"
                       value={user.email}
-                      onChange={(e) => setUser({ ...user, email: e.target.value })}
+                      onChange={(e) =>
+                        setUser({ ...user, email: e.target.value })
+                      }
                     />
                   </Form.Group>
                   <Form.Group controlId="role">
@@ -55,7 +57,9 @@ export const UserPage = () => {
                     <Form.Control
                       type="text"
                       value={user.role}
-                      onChange={(e) => setUser({ ...user, role: e.target.value })}
+                      onChange={(e) =>
+                        setUser({ ...user, role: e.target.value })
+                      }
                     />
                   </Form.Group>
                   <Form.Group controlId="phoneNumber">
@@ -63,7 +67,9 @@ export const UserPage = () => {
                     <Form.Control
                       type="text"
                       value={user.phoneNumber}
-                      onChange={(e) => setUser({ ...user, phoneNumber: e.target.value })}
+                      onChange={(e) =>
+                        setUser({ ...user, phoneNumber: e.target.value })
+                      }
                     />
                   </Form.Group>
                   <Button variant="primary" onClick={handleSave}>

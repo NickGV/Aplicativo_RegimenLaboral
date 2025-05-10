@@ -12,7 +12,7 @@ from .serializers import ContractSerializer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_contracts(request):
-    contracts = Contract.objects.filter(user=request.user)
+    contracts = Contract.objects.filter(empleado=request.user)
     serializer = ContractSerializer(contracts, many=True)
     return Response(serializer.data)
 
@@ -22,9 +22,10 @@ def list_contracts(request):
 def create_contract(request):
     serializer = ContractSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(user=request.user)
+        serializer.save(empleado=request.user)  # ← aquí estaba el error
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response({"error": "Datos inválidos", "detalles": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # GET /api/contracts/<id>/ => Obtener detalle
 @api_view(['GET'])

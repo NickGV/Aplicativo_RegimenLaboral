@@ -14,9 +14,9 @@ class Contract(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(blank=True, null=True)
     salario = models.DecimalField(max_digits=10, decimal_places=2)
-    descripcion = models.TextField()
+    descripcion = models.TextField(blank=True, null=True)
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
-    Estado= models.CharField(max_length=20)
+    estado= models.CharField(max_length=20, default='activo')
     def __str__(self):
         return f'{self.titulo} – {self.empleado.username}'

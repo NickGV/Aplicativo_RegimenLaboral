@@ -37,7 +37,7 @@ def register(request):
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
-    print(email, password)
+    
     user = authenticate(request, username=email, password=password)
     if not user:
          raise AuthenticationFailed("Invalid credentials.")

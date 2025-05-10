@@ -89,12 +89,9 @@ export const NavBar = () => {
                 <Nav.Link
                   as={Link}
                   to="/info"
-                  active={pathname === "/info"} 
+                  active={pathname === "/info"}
                   variant="outline-secondary"
                   className="d-flex align-items-center"
-                  onClick={() => {
-                    window.location.href = "/auth/";
-                  }}
                 >
                   👤
                 </Nav.Link>

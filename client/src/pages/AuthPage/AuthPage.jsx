@@ -54,6 +54,7 @@ export const AuthPage = () => {
     setLoginLoading(true);
     setLoginError("");
     try {
+      console.log("login");
       const token = await handleLogin(loginData);
       localStorage.setItem("token", token);
       navigate("/dashboard");
