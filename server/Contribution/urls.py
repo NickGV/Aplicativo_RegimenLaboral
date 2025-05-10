@@ -1,32 +1,16 @@
 from django.urls import path
 from .views import ContributionListCreateView
 from .views import (
-    calculate_eps,
-    calculate_arl,
-    calculate_pension,
-    calculate_cesantias,
+    contribution_list,
+    contribution_get,
+    contribution_update,
+    contribution_delete
 )
 
 urlpatterns = [
-    path('', ContributionListCreateView.as_view(), name='contribution-list-create'),
-    path(
-        'eps/contract/<int:contract_id>/',
-        calculate_eps,
-        name='contributions-calc-eps'
-    ),
-    path(
-        'arl/contract/<int:contract_id>/',
-        calculate_arl,
-        name='contributions-calc-arl'
-    ),
-    path(
-        'pension/contract/<int:contract_id>/',
-        calculate_pension,
-        name='contributions-calc-pension'
-    ),
-    path(
-        'cesantias/contract/<int:contract_id>/',
-        calculate_cesantias,
-        name='contributions-calc-cesantias'
-    ),
+    path('/create', ContributionListCreateView.as_view()),
+    path('/list', contribution_list),
+    path('/<int:pk>/', contribution_get),
+    path('/<int:pk>/update/', contribution_update),
+    path('/<int:pk>/delete/', contribution_delete),
 ]

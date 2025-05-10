@@ -4,4 +4,5 @@ from .models import Contribution
 class ContributionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contribution
-        fields = '__all__'
+        fields = ['id', 'contrato', 'eps', 'arl', 'pension', 'cesantias', 'total', 'fecha_calculo']
+        read_only_fields = ['id', 'fecha_calculo']
