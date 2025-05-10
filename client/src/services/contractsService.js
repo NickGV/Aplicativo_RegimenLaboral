@@ -3,7 +3,7 @@ import axios from "axios";
 const API_URL = "http://localhost:8000/api/contracts/";
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("access_token");
 
   return {
     headers: {
@@ -13,8 +13,6 @@ const getAuthHeaders = () => {
 };
 
 export const createContract = async (contractData) => {
-  // console.log('createContract', contractData);
-  // console.log(getAuthHeaders());
   try {
     const response = await axios.post(
       `${API_URL}create/`,

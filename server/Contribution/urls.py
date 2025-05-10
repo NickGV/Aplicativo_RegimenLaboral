@@ -8,9 +8,9 @@ from .views import (
 )
 
 urlpatterns = [
-    path('/create', ContributionListCreateView.as_view()),
-    path('/list', contribution_list),
-    path('/<int:pk>/', contribution_get),
-    path('/<int:pk>/update/', contribution_update),
-    path('/<int:pk>/delete/', contribution_delete),
+    path('create', ContributionListCreateView.as_view()),
+    path('list', contribution_list),
+    path('<int:pk>/', contribution_get),
+    path('<int:pk>/update/', contribution_update),
+    path('<int:pk>/delete/', contribution_delete),
 ]

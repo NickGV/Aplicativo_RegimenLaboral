@@ -8,7 +8,8 @@ class Contract(models.Model):
         ('obra', 'Por Obra o Labor'),
     ]
 
-    empleado = models.ForeignKey(User, on_delete=models.CASCADE)
+    empleado = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contratos_empleado")
+    empleador = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contratos_empleador", null=True, blank=True)
     titulo = models.CharField(max_length=100)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
     fecha_inicio = models.DateField()

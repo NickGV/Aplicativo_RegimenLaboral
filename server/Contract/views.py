@@ -12,7 +12,7 @@ from .serializers import ContractSerializer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_contracts(request):
-    contracts = Contract.objects.filter(empleado=request.user)
+    contracts = Contract.objects.filter(empleador=request.user)
     serializer = ContractSerializer(contracts, many=True)
     return Response(serializer.data)
 
@@ -22,7 +22,7 @@ def list_contracts(request):
 def create_contract(request):
     serializer = ContractSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(empleado=request.user)  # ← aquí estaba el error
+        serializer.save(empleado_id=request.data['empleado'], empleador=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response({"error": "Datos inválidos", "detalles": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -31,7 +31,7 @@ def create_contract(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def retrieve_contract(request, id):
-    contract = get_object_or_404(Contract, id=id, user=request.user)
+    contract = get_object_or_404(Contract, id=id, empleador=request.user)
     serializer = ContractSerializer(contract)
     return Response(serializer.data)
 
@@ -39,7 +39,7 @@ def retrieve_contract(request, id):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_contract(request, id):
-    contract = get_object_or_404(Contract, id=id, user=request.user)
+    contract = get_object_or_404(Contract, id=id, empleador=request.user)
     serializer = ContractSerializer(contract, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
@@ -50,8 +50,6 @@ def update_contract(request, id):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def terminate_contract(request, id):
-    contract = get_object_or_404(Contract, id=id, user=request.user)
-    contract.terminated = True
-    contract.termination_date = request.data.get('termination_date', date.today())
-    contract.save()
-    return Response({"detalle": "Contrato marcado como terminado."}, status=status.HTTP_200_OK)
+    contract = get_object_or_404(Contract, id=id, empleador=request.user)
+    contract.delete()
+    return Response({"detalle": "Contrato eliminado correctamente."}, status=status.HTTP_204_NO_CONTENT)

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Button,
@@ -11,7 +11,7 @@ import {
 import { BiX, BiSave } from "react-icons/bi";
 import useContract from "../../hooks/useContracts";
 import useAuth from "../../hooks/useAuth";
-export const ContractForm = ({ show, handleClose }) => {
+export const ContractForm = ({ show, handleClose, initialData = null, onSave }) => {
   const [formData, setFormData] = useState({
     titulo: "",
     tipo: "",
@@ -19,11 +19,42 @@ export const ContractForm = ({ show, handleClose }) => {
     fecha_fin: "",
     salario: "",
     descripcion: "",
+    empleado: "",
   });
 
-  const { user } = useAuth();
-
+  const { handleListUsers } = useAuth();
   const { handleCreateContract } = useContract();
+  const [empleados, setEmpleados] = useState([]);
+
+  useEffect(() => {
+    const fetchEmpleados = async () => {
+      const users = await handleListUsers();
+      if (users && Array.isArray(users)) {
+        setEmpleados(users.filter((u) => u.rol === "empleado"));
+      }
+    };
+    fetchEmpleados();
+  }, [handleListUsers]);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        ...initialData,
+        empleado: initialData.empleado?.id || initialData.empleado || "",
+      });
+    } else {
+      setFormData({
+        titulo: "",
+        tipo: "",
+        fecha_inicio: "",
+        fecha_fin: "",
+        salario: "",
+        descripcion: "",
+        empleado: "",
+      });
+    }
+  }, [initialData, show]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -31,25 +62,46 @@ export const ContractForm = ({ show, handleClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleCreateContract({
-      ...formData,
-      estado: "Active",
-      empleado: user.id,
-      id: Date.now(),
-    });
+    if (onSave) {
+      onSave(formData);
+    } else {
+      handleCreateContract({
+        ...formData,
+        estado: "Active",
+        empleado: formData.empleado,
+      });
+    }
     handleClose();
   };
   return (
     <Modal show={show} onHide={handleClose} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>Nuevo Contrato</Modal.Title>
+        <Modal.Title>{initialData ? "Editar Contrato" : "Nuevo Contrato"}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p className="text-muted mb-4">
-          Complete la información para registrar un nuevo contrato
+          Complete la información para {initialData ? "editar" : "registrar"} un contrato
         </p>
 
         <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-4">
+            <h5>Empleado</h5>
+            <Form.Select
+              name="empleado"
+              required
+              value={formData.empleado}
+              onChange={handleChange}
+              disabled={!!initialData}
+            >
+              <option value="">Seleccione un empleado</option>
+              {empleados.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.username || emp.email}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+
           <Form.Group className="mb-4">
             <h5>Título del Contrato</h5>
             <Form.Control

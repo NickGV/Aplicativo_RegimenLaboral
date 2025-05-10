@@ -1,8 +1,8 @@
 import React, { createContext, useState } from "react";
 import {
   createContribution,
-  getContributions,
-  getContributionDetail,
+  listContribution,
+  getContribution,
   updateContribution,
   deleteContribution,
 } from "../services/contributionService";
@@ -30,7 +30,7 @@ export const ContributionProvider = ({ children }) => {
   const handleGetContributions = async () => {
     try {
       setLoading(true);
-      const contributionsData = await getContributions();
+      const contributionsData = await listContribution();
       setContributions(contributionsData);
       setError(null);
     } catch (error) {
@@ -43,7 +43,7 @@ export const ContributionProvider = ({ children }) => {
   const handleGetContributionDetail = async (id) => {
     try {
       setLoading(true);
-      const contributionData = await getContributionDetail(id);
+      const contributionData = await getContribution(id);
       return contributionData;
     } catch (error) {
       setError(error.response.data);
