@@ -9,6 +9,7 @@ import {
   Button,
   Alert,
   InputGroup,
+  Spinner,
 } from "react-bootstrap";
 import { BsEnvelope, BsLock, BsPerson } from "react-icons/bs";
 import useAuth from "../../hooks/useAuth";
@@ -54,7 +55,6 @@ export const AuthPage = () => {
     setLoginLoading(true);
     setLoginError("");
     try {
-      console.log("login");
       const token = await handleLogin(loginData);
       localStorage.setItem("token", token);
       navigate("/dashboard");
@@ -85,7 +85,6 @@ export const AuthPage = () => {
       await handleRegister(userData);
       navigate("/dashboard");
     } catch (error) {
-      console.log(error);
       setRegisterError(error.message);
     } finally {
       setRegisterLoading(false);
@@ -93,24 +92,26 @@ export const AuthPage = () => {
   };
 
   return (
-    <Container
-      className="d-flex align-items-center justify-content-center"
-      style={{ minHeight: "100vh" }}
-    >
+    <Container fluid className="d-flex align-items-center justify-content-center min-vh-100">
       <Row className="w-100 justify-content-center">
-        <Col xs={12} md={8} lg={5}>
-          <Card>
-            <Card.Header className="text-center">
-              <h2>{isLogin ? "Iniciar Sesión" : "Registrarse"}</h2>
-              <p>
+        <Col xs={12} md={10} lg={7} xl={6} xxl={5}>
+          <Card className="shadow-lg border-0 rounded-4">
+            <Card.Header className="text-center bg-white border-0 pb-0 pt-4">
+              <h2
+                className="fw-bold mb-1"
+                style={{ letterSpacing: 1 }}
+              >
+                {isLogin ? "Iniciar Sesión" : "Registrarse"}
+              </h2>
+              <p className="text-muted mb-0" style={{ fontSize: 16 }}>
                 {isLogin
                   ? "Ingrese sus credenciales para acceder al sistema"
                   : "Complete los datos para crear su cuenta"}
               </p>
             </Card.Header>
-            <Card.Body>
+            <Card.Body className="px-4 py-4">
               {isLogin ? (
-                <Form onSubmit={handleLoginSubmit}>
+                <Form onSubmit={handleLoginSubmit} autoComplete="off">
                   {loginError && <Alert variant="danger">{loginError}</Alert>}
                   <Form.Group className="mb-3" controlId="login-email">
                     <Form.Label>Correo Electrónico</Form.Label>
@@ -125,6 +126,7 @@ export const AuthPage = () => {
                         value={loginData.email}
                         onChange={handleLoginChange}
                         required
+                        autoFocus
                       />
                     </InputGroup>
                   </Form.Group>
@@ -144,56 +146,73 @@ export const AuthPage = () => {
                       />
                     </InputGroup>
                   </Form.Group>
-                  <div className="d-grid">
+                  <div className="d-grid mb-2">
                     <Button
-                      variant="dark"
+                      variant="primary"
                       type="submit"
                       disabled={loginLoading}
+                      className="rounded-pill fw-bold"
                     >
-                      {loginLoading ? "Iniciando..." : "Iniciar Sesión"}
+                      {loginLoading ? (
+                        <Spinner size="sm" animation="border" />
+                      ) : (
+                        "Iniciar Sesión"
+                      )}
                     </Button>
                   </div>
-                  <div className="text-center mt-3">
-                    <a href="#">¿Olvidó su contraseña?</a>
+                  <div className="text-center mt-2">
+                    <a
+                      href="#"
+                      className="text-decoration-none text-muted small"
+                    >
+                      ¿Olvidó su contraseña?
+                    </a>
                   </div>
                 </Form>
               ) : (
-                <Form onSubmit={handleRegisterSubmit}>
+                <Form onSubmit={handleRegisterSubmit} autoComplete="off">
                   {registerError && (
                     <Alert variant="danger">{registerError}</Alert>
                   )}
-                  <Form.Group className="mb-3" controlId="register-name">
-                    <Form.Label>Nombre Completo</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <BsPerson />
-                      </InputGroup.Text>
-                      <Form.Control
-                        type="text"
-                        name="username"
-                        placeholder="Juan Pérez"
-                        value={registerData.username}
-                        onChange={handleRegisterChange}
-                        required
-                      />
-                    </InputGroup>
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="register-phone">
-                    <Form.Label>Número de Teléfono</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <BsPerson />
-                      </InputGroup.Text>
-                      <Form.Control
-                        type="text"
-                        name="numero_telefono"
-                        placeholder="1234567890"
-                        value={registerData.numero_telefono}
-                        onChange={handleRegisterChange}
-                        required
-                      />
-                    </InputGroup>
-                  </Form.Group>
+                  <Row>
+                    <Col md={6} className="mb-3">
+                      <Form.Group controlId="register-name">
+                        <Form.Label>Nombre Completo</Form.Label>
+                        <InputGroup>
+                          <InputGroup.Text>
+                            <BsPerson />
+                          </InputGroup.Text>
+                          <Form.Control
+                            type="text"
+                            name="username"
+                            placeholder="Juan Pérez"
+                            value={registerData.username}
+                            onChange={handleRegisterChange}
+                            required
+                            autoFocus
+                          />
+                        </InputGroup>
+                      </Form.Group>
+                    </Col>
+                    <Col md={6} className="mb-3">
+                      <Form.Group controlId="register-phone">
+                        <Form.Label>Número de Teléfono</Form.Label>
+                        <InputGroup>
+                          <InputGroup.Text>
+                            <BsPerson />
+                          </InputGroup.Text>
+                          <Form.Control
+                            type="text"
+                            name="numero_telefono"
+                            placeholder="1234567890"
+                            value={registerData.numero_telefono}
+                            onChange={handleRegisterChange}
+                            required
+                          />
+                        </InputGroup>
+                      </Form.Group>
+                    </Col>
+                  </Row>
                   <Form.Group className="mb-3" controlId="register-email">
                     <Form.Label>Correo Electrónico</Form.Label>
                     <InputGroup>
@@ -256,33 +275,50 @@ export const AuthPage = () => {
                     >
                       <option value="empleado">Empleado</option>
                       <option value="empleador">Empleador</option>
-                      <option value="admin">Admin</option>
+                      <option value="contador">Contador</option>
+                      <option value="asesor_legal">Asesor Legal</option>
+                      <option value="entidad_gubernamental">
+                        Entidad Gubernamental
+                      </option>
                     </Form.Control>
                   </Form.Group>
-                  <div className="d-grid">
+                  <div className="d-grid mb-2">
                     <Button
-                      variant="dark"
+                      variant="primary"
                       type="submit"
                       disabled={registerLoading}
+                      className="rounded-pill fw-bold"
                     >
-                      {registerLoading ? "Registrando..." : "Registrarse"}
+                      {registerLoading ? (
+                        <Spinner size="sm" animation="border" />
+                      ) : (
+                        "Registrarse"
+                      )}
                     </Button>
                   </div>
                 </Form>
               )}
             </Card.Body>
-            <Card.Footer className="text-center">
+            <Card.Footer className="text-center bg-white border-0 pb-4 pt-3">
               {isLogin ? (
-                <p>
+                <p className="mb-0">
                   ¿No tiene una cuenta?{" "}
-                  <Button variant="link" onClick={() => switchMode("register")}>
+                  <Button
+                    variant="link"
+                    className="p-0 align-baseline"
+                    onClick={() => switchMode("register")}
+                  >
                     Registrarse
                   </Button>
                 </p>
               ) : (
-                <p>
+                <p className="mb-0">
                   ¿Ya tiene cuenta?{" "}
-                  <Button variant="link" onClick={() => switchMode("login")}>
+                  <Button
+                    variant="link"
+                    className="p-0 align-baseline"
+                    onClick={() => switchMode("login")}
+                  >
                     Iniciar Sesión
                   </Button>
                 </p>
