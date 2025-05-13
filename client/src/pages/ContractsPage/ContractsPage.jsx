@@ -11,16 +11,13 @@ export const ContractsPage = () => {
   const {
     contracts,
     loading,
-    handleGetContracts,
     handleTerminateContract,
     handleUpdateContract,
   } = useContracts();
   const [showForm, setShowForm] = useState(false);
   const [editContract, setEditContract] = useState(null);
 
-  useEffect(() => {
-    handleGetContracts();
-  }, []);
+
 
   const handleDelete = (id) => {
     if (window.confirm("¿Seguro que deseas eliminar este contrato?")) {
@@ -72,6 +69,7 @@ export const ContractsPage = () => {
           <thead>
             <tr>
               <th>Título</th>
+              <th>Empleado</th>
               <th>Tipo</th>
               <th>Fecha Inicio</th>
               <th>Salario</th>
@@ -84,17 +82,22 @@ export const ContractsPage = () => {
               contracts.map((contrato) => (
                 <tr key={contrato.id}>
                   <td>{contrato.titulo}</td>
+                  <td>{contrato.empleado?.username || contrato.empleado?.email || contrato.empleado}</td>
                   <td>{contrato.tipo?.replace(/_/g, " ")}</td>
                   <td>{contrato.fecha_inicio}</td>
                   <td>${parseInt(contrato.salario).toLocaleString("es-CO")}</td>
                   <td>
-                    <span
-                      className={`badge ${
-                        contrato.estado === "Activo" ? "bg-success" : "bg-secondary"
-                      }`}
+                    <Button
+                      variant={
+                        contrato.estado === "Activo" ? "success" : "secondary"
+                      }
+                      size="sm"
+                      className="w-100"
+                      onClick={() => handleToggleEstado(contrato)}
+                      title="Cambiar estado"
                     >
                       {contrato.estado || (contrato.terminated ? "Terminado" : "Activo")}
-                    </span>
+                    </Button>
                   </td>
                   <td>
                     {userRole === "empleador" && (
@@ -115,14 +118,7 @@ export const ContractsPage = () => {
                         >
                           <BiTrash /> Eliminar
                         </Button>
-                        <Button
-                          variant={contrato.estado === "Activo" ? "outline-warning" : "outline-success"}
-                          size="sm"
-                          className="me-2"
-                          onClick={() => handleToggleEstado(contrato)}
-                        >
-                          {contrato.estado === "Activo" ? "Marcar como Terminado" : "Marcar como Activo"}
-                        </Button>
+
                       </>
                     )}
                     <Button variant="outline-success" size="sm">
@@ -133,7 +129,7 @@ export const ContractsPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan="7" className="text-center">
                   No hay contratos registrados.
                 </td>
               </tr>

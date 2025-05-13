@@ -1,12 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
 import { BsPeople, BsFileEarmark } from "react-icons/bs";
 import useAuth from "../../hooks/useAuth";
+import useContracts from "../../hooks/useContracts";
+import { ContractForm } from "../../components/Contracts/ContractForm";
+import { ContractList } from "../../components/Contracts/ContractList";
 
 export const Dashboard = () => {
   const { user } = useAuth();
   const userRole = user ? user.rol : null;
+  const { contracts } = useContracts();
+  const [showForm, setShowForm] = useState(false);
+
+  // Totales
+  const totalContratos = contracts.length;
+  const activos = contracts.filter((c) => c.estado === "Activo").length;
+  const finalizados = contracts.filter((c) => c.estado !== "Activo").length;
+
+  // Contratos recientes (últimos 5)
+  const contratosRecientes = [...contracts]
+    .sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en))
+    .slice(0, 5);
 
   return (
     <Container className="py-4">
@@ -20,10 +35,12 @@ export const Dashboard = () => {
                 Total Contratos
               </Card.Subtitle>
               <div className="d-flex align-items-center my-2">
-                <h2 className="mb-0 me-auto">1</h2>
+                <h2 className="mb-0 me-auto">{totalContratos}</h2>
                 <BsPeople className="fs-3 text-secondary" />
               </div>
-              <small className="text-muted">1 activos, 0 finalizados</small>
+              <small className="text-muted">
+                {activos} activos, {finalizados} finalizados
+              </small>
             </Card.Body>
           </Card>
         </Col>
@@ -52,7 +69,11 @@ export const Dashboard = () => {
               <Form className="mt-3 d-grid gap-2">
                 {userRole === "empleador" && (
                   <>
-                    <Button variant="dark" size="lg">
+                    <Button
+                      variant="dark"
+                      size="lg"
+                      onClick={() => setShowForm(true)}
+                    >
                       + Nuevo Contrato
                     </Button>
                     <Button variant="outline-dark" size="lg">
@@ -76,10 +97,13 @@ export const Dashboard = () => {
         <Card.Subtitle className="text-secondary mb-3">
           Contratos Recientes
         </Card.Subtitle>
-        <div className="text-center text-muted py-5">
-          Cargando contratos recientes...
-        </div>
+        <ContractList contracts={contratosRecientes} />
       </Card>
+
+      <ContractForm
+        show={showForm}
+        handleClose={() => setShowForm(false)}
+      />
     </Container>
   );
 };

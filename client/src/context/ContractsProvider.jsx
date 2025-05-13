@@ -6,15 +6,16 @@ import {
   updateContract,
   terminateContract,
 } from "../services/contractsService";
+import useAuth from "../hooks/useAuth";
 
 export const ContractContext = createContext();
 
 export const ContractProvider = ({ children }) => {
+  const { user } = useAuth();
   const [contracts, setContracts] = useState([]);
   const [selectedContract, setSelectedContract] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem("token");
 
   const handleGetContracts = async () => {
     setLoading(true);
@@ -71,11 +72,12 @@ export const ContractProvider = ({ children }) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (token) {
-  //     handleGetContracts();
-  //   }
-  // }, [token]);
+  useEffect(() => {
+    if (user) {
+      console.log("Token found, fetching contracts...");
+      handleGetContracts();
+    }
+  }, [user]);
 
   return (
     <ContractContext.Provider

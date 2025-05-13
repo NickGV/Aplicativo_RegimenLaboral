@@ -22,7 +22,8 @@ def list_contracts(request):
 def create_contract(request):
     serializer = ContractSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(empleado_id=request.data['empleado'], empleador=request.user)
+        empleado_id = request.data['empleado']
+        serializer.save(empleado_id=empleado_id, empleador=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response({"error": "Datos inválidos", "detalles": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -40,7 +41,10 @@ def retrieve_contract(request, id):
 @permission_classes([IsAuthenticated])
 def update_contract(request, id):
     contract = get_object_or_404(Contract, id=id, empleador=request.user)
-    serializer = ContractSerializer(contract, data=request.data, partial=True)
+    data = request.data.copy()
+    if 'empleado' in data:
+        data['empleado'] = data['empleado'] if isinstance(data['empleado'], int) else int(data['empleado'])
+    serializer = ContractSerializer(contract, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)

@@ -123,8 +123,9 @@ export const AuthProvider = ({ children }) => {
         console.error("Error al refrescar el token:", err);
       }
     };
-
-    refreshTokenSilently();
+    if(user){
+      refreshTokenSilently();
+    }
   }, []);
 
   return (
