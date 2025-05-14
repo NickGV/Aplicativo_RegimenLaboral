@@ -7,6 +7,7 @@ class Contribution(models.Model):
         on_delete=models.CASCADE,
         related_name='Contributions'
     )
+    salario_base = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     eps = models.DecimalField(max_digits=10, decimal_places=2)
     arl = models.DecimalField(max_digits=10, decimal_places=2)
     pension = models.DecimalField(max_digits=10, decimal_places=2)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Table, Card } from 'react-bootstrap';
 import { BiSave, BiCalculator } from 'react-icons/bi';
 
@@ -10,8 +10,21 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
 
   const [resultados, setResultados] = useState(null);
 
+  useEffect(() => {
+    if (formData.contratoId) {
+      const contratoSeleccionado = contratos.find(c => c.id === parseInt(formData.contratoId));
+      if (contratoSeleccionado) {
+        setFormData(prev => ({
+          ...prev,
+          salario: contratoSeleccionado.salario
+        }));
+      }
+    }
+  }, [formData.contratoId, contratos]);
+
   const calcularAportes = () => {
     const salario = parseFloat(formData.salario) || 0;
+    
     const nuevosResultados = {
       eps: salario * 0.085,
       arl: salario * 0.00522,
@@ -19,6 +32,7 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
       cesantias: salario * 0.0833,
       total: salario * (0.085 + 0.00522 + 0.12 + 0.0833)
     };
+    
     setResultados(nuevosResultados);
   };
 
@@ -27,12 +41,21 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
     if (resultados) {
       guardarCalculo({
         contratoId: formData.contratoId,
+        contrato: formData.contratoId,
         salarioBase: formData.salario,
         ...resultados,
-        fecha: new Date().toLocaleDateString()
+        fecha: new Date().toISOString().split('T')[0]
       });
       handleClose();
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
   };
 
   return (
@@ -44,7 +67,7 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
         <Card className="mb-4">
           <Card.Body>
             <p className="text-muted">
-              Seleccione un contrato y calcule los aportes al sistema de seguridad social
+              Seleccione un contrato y calcule los aportes al sistema de seguridad social según la normativa colombiana
             </p>
 
             <Form.Group className="mb-3">
@@ -52,13 +75,13 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
               <Form.Select 
                 name="contratoId" 
                 value={formData.contratoId}
-                onChange={(e) => setFormData({...formData, contratoId: e.target.value})}
+                onChange={handleChange}
                 required
               >
                 <option value="">Seleccione un contrato</option>
                 {contratos.map(contrato => (
                   <option key={contrato.id} value={contrato.id}>
-                    {contrato.titulo} (${contrato.salario?.toLocaleString() || '0'})
+                    {contrato.titulo} (${parseInt(contrato.salario).toLocaleString('es-CO')})
                   </option>
                 ))}
               </Form.Select>
@@ -70,9 +93,12 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
                 type="number"
                 name="salario"
                 value={formData.salario}
-                onChange={(e) => setFormData({...formData, salario: e.target.value})}
+                onChange={handleChange}
                 required
               />
+              <Form.Text className="text-muted">
+                El salario base se toma del contrato seleccionado, pero puede modificarlo si necesita hacer un cálculo específico.
+              </Form.Text>
             </Form.Group>
 
             <div className="d-grid">
@@ -94,36 +120,46 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
               <Table bordered className="mb-4">
                 <thead>
                   <tr>
-                    <th>Aporte a EPS (8.5%)</th>
-                    <th>Aporte a ARL (0.522%)</th>
+                    <th>Concepto</th>
+                    <th>Porcentaje</th>
+                    <th>Valor</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>${resultados.eps.toLocaleString()}</td>
-                    <td>${resultados.arl.toLocaleString()}</td>
+                    <td>Aporte a EPS</td>
+                    <td>8.5%</td>
+                    <td>${parseInt(resultados.eps).toLocaleString('es-CO')}</td>
+                  </tr>
+                  <tr>
+                    <td>Aporte a ARL (Riesgo I)</td>
+                    <td>0.522%</td>
+                    <td>${parseInt(resultados.arl).toLocaleString('es-CO')}</td>
+                  </tr>
+                  <tr>
+                    <td>Aporte a Pensión</td>
+                    <td>12%</td>
+                    <td>${parseInt(resultados.pension).toLocaleString('es-CO')}</td>
+                  </tr>
+                  <tr>
+                    <td>Aporte a Cesantías</td>
+                    <td>8.33%</td>
+                    <td>${parseInt(resultados.cesantias).toLocaleString('es-CO')}</td>
+                  </tr>
+                  <tr className="table-primary">
+                    <td colSpan="2"><strong>Total Aportes</strong></td>
+                    <td><strong>${parseInt(resultados.total).toLocaleString('es-CO')}</strong></td>
                   </tr>
                 </tbody>
               </Table>
 
-              <Table bordered className="mb-4">
-                <thead>
-                  <tr>
-                    <th>Aporte a Pensión (12%)</th>
-                    <th>Aporte a Cesantías (8.33%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>${resultados.pension.toLocaleString()}</td>
-                    <td>${resultados.cesantias.toLocaleString()}</td>
-                  </tr>
-                </tbody>
-              </Table>
-
-              <h5 className="text-end">
-                Total Aportes: ${resultados.total.toLocaleString()}
-              </h5>
+              <div className="alert alert-info">
+                <small>
+                  <strong>Nota:</strong> Los cálculos se realizan de acuerdo a la normativa colombiana vigente. 
+                  El cálculo de ARL asume un nivel de riesgo I (0.522%). Los porcentajes pueden variar según 
+                  el sector y categoría de riesgo específico.
+                </small>
+              </div>
             </Card.Body>
           </Card>
         )}

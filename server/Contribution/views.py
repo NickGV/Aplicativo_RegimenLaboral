@@ -1,19 +1,23 @@
 from rest_framework import generics
 from django.shortcuts import get_object_or_404
-from .models import Contract, Contribution
+from .models import Contribution
+from Contract.models import Contract
 from .serializers import ContributionSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.urls import reverse_lazy
 from rest_framework import status
 
 class ContributionListCreateView(generics.ListCreateAPIView):
     queryset = Contribution.objects.all()
     serializer_class = ContributionSerializer
+    permission_classes = [IsAuthenticated]
 
-
-
+def get_contribution(pk):
+    try:
+        return Contribution.objects.get(pk=pk)
+    except Contribution.DoesNotExist:
+        return None
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -22,7 +26,12 @@ def contribution_list(request):
     List all contributions or create a new one.
     """
     if request.method == 'GET':
-        contributions = Contribution.objects.all()
+        # Solo mostrar las contribuciones de los contratos del empleador
+        if request.user.rol == 'empleador':
+            contributions = Contribution.objects.filter(contrato__empleador=request.user)
+        else:
+            contributions = Contribution.objects.all()
+            
         serializer = ContributionSerializer(contributions, many=True)
         return Response(serializer.data)
 
@@ -78,5 +87,6 @@ def contribution_delete(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def contribution_detail(request, id):
-    # retrieve contribution record by id
-    return Response({"detail": "contribution_detail stub"})
+    contribution = get_object_or_404(Contribution, id=id)
+    serializer = ContributionSerializer(contribution)
+    return Response(serializer.data)
