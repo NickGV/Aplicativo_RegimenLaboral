@@ -31,6 +31,11 @@ export const ContractProvider = ({ children }) => {
   };
 
   const handleCreateContract = async (contractData) => {
+    console.log("Creating contract with data:", contractData);
+    if (!contractData) {
+      console.error("No contract data provided");
+      return;
+    }
     try {
       const newContract = await createContract(contractData);
       setContracts((prev) => [...prev, newContract]);

@@ -59,18 +59,25 @@ export const ContractForm = ({ show, handleClose, initialData = null, onSave }) 
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Form data:", formData);
+    
+    // Preparar datos del contrato con el estado
+    const contractData = {
+      ...formData,
+      estado: "Activo",
+      empleado: formData.empleado,
+    };
+    
     if (onSave) {
-      onSave(formData);
+      console.log("Using onSave function with data:", contractData);
+      onSave(contractData);
     } else {
-      handleCreateContract({
-        ...formData,
-        estado: "Active",
-        empleado: formData.empleado,
-      });
+      console.log("No onSave function provided, using handleCreateContract directly");
+      handleCreateContract(contractData);
     }
+    
     handleClose();
   };
   return (

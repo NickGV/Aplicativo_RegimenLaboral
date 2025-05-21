@@ -7,12 +7,12 @@ import useContracts from "../../hooks/useContracts";
 
 export const ContractsPage = () => {
   const { user } = useAuth();
-  const userRole = user ? user.rol : null;
-  const {
+  const userRole = user ? user.rol : null;  const {
     contracts,
     loading,
     handleTerminateContract,
     handleUpdateContract,
+    handleCreateContract
   } = useContracts();
   const [showForm, setShowForm] = useState(false);
   const [editContract, setEditContract] = useState(null);
@@ -34,10 +34,11 @@ export const ContractsPage = () => {
     setShowForm(false);
     setEditContract(null);
   };
-
   const handleFormSave = async (formData) => {
     if (editContract) {
       await handleUpdateContract(editContract.id, formData);
+    } else {
+      await handleCreateContract(formData);
     }
     handleFormClose();
   };

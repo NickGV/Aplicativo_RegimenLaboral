@@ -113,8 +113,9 @@ export const AuthProvider = ({ children }) => {
       setError(err);
     }
   };
-
   useEffect(() => {
+    const REFRESH_INTERVAL = 15 * 60 * 1000;
+    
     const refreshTokenSilently = async () => {
       try {
         const newToken = await refreshAccessToken();
@@ -123,10 +124,24 @@ export const AuthProvider = ({ children }) => {
         console.error("Error al refrescar el token:", err);
       }
     };
-    if(user){
+    
+    let intervalId;
+    
+    if(user) {
+      // Ejecutar una vez al inicio
       refreshTokenSilently();
+      
+      // Configurar el intervalo para refrescar periódicamente
+      intervalId = setInterval(refreshTokenSilently, REFRESH_INTERVAL);
     }
-  }, []);
+    
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [user]); // Solo se ejecuta cuando cambia el usuario
 
   return (
     <AuthContext.Provider
