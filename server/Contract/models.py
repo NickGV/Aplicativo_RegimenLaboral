@@ -13,7 +13,7 @@ class Contract(models.Model):
     titulo = models.CharField(max_length=100)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
     fecha_inicio = models.DateField()
-    fecha_fin = models.DateField(blank=True, null=True)
+    fecha_fin = models.DateField(blank=True, null=True, default=None)
     salario = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(blank=True, null=True)
     creado_en = models.DateTimeField(auto_now_add=True)
