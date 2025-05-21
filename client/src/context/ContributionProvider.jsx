@@ -7,11 +7,13 @@ import {
   deleteContribution,
 } from "../services/contributionService";
 import useAuth from "../hooks/useAuth";
+import useContracts from "../hooks/useContracts";
 
 export const ContributionContext = createContext();
 
 export const ContributionProvider = ({ children }) => {
   const { user } = useAuth();
+  const {contracts} = useContracts();
   const [contributions, setContributions] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -50,7 +52,7 @@ export const ContributionProvider = ({ children }) => {
     if (user) {
       handleGetContributions();
     }
-  }, [user]);
+  }, [user,contracts]);
 
   const handleGetContributionDetail = async (id) => {
     try {

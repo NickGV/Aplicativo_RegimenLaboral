@@ -7,38 +7,37 @@ import {
   terminateContract,
 } from "../services/contractsService";
 import useAuth from "../hooks/useAuth";
-import useContribution from "../hooks/useContribution"; // <-- hook para crear contribuciones
+// Importamos directamente el servicio en lugar del hook
+import { createContribution } from "../services/contributionService";
 
 export const ContractContext = createContext();
 
 export const ContractProvider = ({ children }) => {
   const { user } = useAuth();
-  const { handleCreateContribution } = useContribution(); // <-- método para crear una contribución
+  // Ya no usamos el hook de contribución, ahora usamos directamente el servicio
   const [contracts, setContracts] = useState([]);
   const [selectedContract, setSelectedContract] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  /**
-   * Genera una o varias contribuciones a partir del salario del contrato.
-   * Ajusta esta función para calcular los valores que necesites (p.ej. salud, pensión, etc.).
-   * Aquí como ejemplo simple: crea una única contribución equivalente al 10% del salario.
-   */
+  const [loading, setLoading] = useState(false); 
   const generateContributionsFromSalary = (contract) => {
-    const salary = contract.salary;
+    const salary = parseFloat(contract.salario || 0);
     if (!salary) return [];
+      const eps =  salary * 0.085
+      const arl =  salary * 0.00522
+      const pension =  salary * 0.12
+      const cesantias =  salary * 0.0833
+      const total =  salary * (0.085 + 0.00522 + 0.12 + 0.0833)
 
-    // Ejemplo: 10% del salario como contribución única
-    const baseAmount = salary * 0.1;
     return [
       {
-        contractId: contract.id,
-        amount: baseAmount,
-        // suponiendo que la contribución se crea en la fecha actual
-        date: new Date().toISOString().split("T")[0],
-        // puedes agregar otros campos necesarios, por ejemplo:
-        // type: "Pensión", ...
-      },
+        contrato: contract.id,
+        salario_base: salary,
+        eps: eps,
+        arl: arl,
+        pension: pension,
+        cesantias: cesantias,
+        total: total
+      }
     ];
   };
 
@@ -48,17 +47,7 @@ export const ContractProvider = ({ children }) => {
       const data = await getContracts();
       setContracts(data);
       setError(null);
-      // Si quisieras generar contribuciones para cada contrato al traer la lista,
-      // podrías iterar aquí sobre data. Por ejemplo:
-      //
-      // for (const contract of data) {
-      //   const contributions = generateContributionsFromSalary(contract);
-      //   for (const contrib of contributions) {
-      //     await handleCreateContribution(contrib);
-      //   }
-      // }
-      //
-      // Pero en este ejemplo dejaremos la generación al obtener el detalle o al crear.
+      
     } catch (error) {
       setError(error);
     } finally {
@@ -75,12 +64,15 @@ export const ContractProvider = ({ children }) => {
     try {
       const newContract = await createContract(contractData);
       setContracts((prev) => [...prev, newContract]);
-      setError(null);
-
-      // Una vez creado el contrato, generar contribuciones en base al salario
+      setError(null);     
+      
       const contributions = generateContributionsFromSalary(newContract);
       for (const contrib of contributions) {
-        await handleCreateContribution(contrib);
+        try {
+          await createContribution(contrib);
+        } catch (contribError) {
+          console.error("Error creating contribution:", contribError);
+        }
       }
     } catch (error) {
       setError(error);
@@ -91,12 +83,14 @@ export const ContractProvider = ({ children }) => {
     try {
       const detail = await getContractDetail(id);
       setSelectedContract(detail);
-      setError(null);
-
-      // Al obtener el detalle, generar contribuciones basadas en el salario
+      setError(null);      // Al obtener el detalle, generar contribuciones basadas en el salario
       const contributions = generateContributionsFromSalary(detail);
       for (const contrib of contributions) {
-        await handleCreateContribution(contrib);
+        try {
+          await createContribution(contrib);
+        } catch (contribError) {
+          console.error("Error creating contribution:", contribError);
+        }
       }
     } catch (error) {
       setError(error);
@@ -115,11 +109,14 @@ export const ContractProvider = ({ children }) => {
       // Por ejemplo, si updatedData.salary existe y es distinto:
       if (updatedData.salary) {
         // Primero, podrías eliminar o marcar como inválidas las contribuciones anteriores
-        // asociadas a este contrato, dependiendo de tu lógica de negocio.
-        // Luego, vuelves a generarlas:
+        // asociadas a este contrato, dependiendo de tu lógica de negocio.        // Luego, vuelves a generarlas:
         const contributions = generateContributionsFromSalary(updated);
         for (const contrib of contributions) {
-          await handleCreateContribution(contrib);
+          try {
+            await createContribution(contrib);
+          } catch (contribError) {
+            console.error("Error creating contribution:", contribError);
+          }
         }
       }
     } catch (error) {
