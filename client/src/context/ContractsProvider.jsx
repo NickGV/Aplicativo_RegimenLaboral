@@ -18,20 +18,19 @@ export const ContractProvider = ({ children }) => {
   const [contracts, setContracts] = useState([]);
   const [selectedContract, setSelectedContract] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); 
-  const generateContributionsFromSalary = (contract) => {
+  const [loading, setLoading] = useState(false);   const generateContributionsFromSalary = (contract) => {
     const salary = parseFloat(contract.salario || 0);
     if (!salary) return [];
-      const eps =  salary * 0.085
-      const arl =  salary * 0.00522
-      const pension =  salary * 0.12
-      const cesantias =  salary * 0.0833
-      const total =  salary * (0.085 + 0.00522 + 0.12 + 0.0833)
+      const eps = parseFloat((salary * 0.085).toFixed(2))
+      const arl = parseFloat((salary * 0.00522).toFixed(2))
+      const pension = parseFloat((salary * 0.12).toFixed(2))
+      const cesantias = parseFloat((salary * 0.0833).toFixed(2))
+      const total = parseFloat((salary * (0.085 + 0.00522 + 0.12 + 0.0833)).toFixed(2))
 
     return [
       {
         contrato: contract.id,
-        salario_base: salary,
+        salario_base: parseFloat(salary.toFixed(2)),
         eps: eps,
         arl: arl,
         pension: pension,
