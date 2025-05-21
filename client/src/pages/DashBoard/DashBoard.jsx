@@ -29,7 +29,8 @@ export const Dashboard = () => {
 
       <Row className="g-4 mb-4">
         <Col md={4}>
-          <Card className="shadow-sm rounded-3">
+          <Card className="shadow-sm rounded-3"
+          style={{ width: "100%", minHeight: "168px" }}>
             <Card.Body>
               <Card.Subtitle className="text-secondary">
                 Total Contratos
@@ -46,7 +47,8 @@ export const Dashboard = () => {
         </Col>
 
         <Col md={4}>
-          <Card className="shadow-sm rounded-3">
+          <Card className="shadow-sm rounded-3"
+          style={{ width: "100%", minHeight: "168px" }}>
             <Card.Body>
               <Card.Subtitle className="text-secondary">
                 Cálculos Recientes
@@ -66,7 +68,8 @@ export const Dashboard = () => {
               <Card.Subtitle className="text-secondary">
                 Acciones Rápidas
               </Card.Subtitle>
-              <Form className="mt-3 d-grid gap-2">
+              <Form className="mt-3 d-grid gap-2"
+              style={{ width: "100%", minHeight: "100px" }}>
                 {userRole === "empleador" && (
                   <>
                     <Button
