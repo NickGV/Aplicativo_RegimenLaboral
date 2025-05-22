@@ -161,13 +161,6 @@ export const ContractsPage = () => {
                     >
                       🧾 PDF
                     </Button>
-                    
-                    {/* Only employers can mark payments */}
-                    {userRole === "empleador" && (
-                      <Button variant="outline-success" size="sm">
-                        <BiDollar /> Pagar
-                      </Button>
-                    )}
                   </td>
                 </tr>
               ))
