@@ -7,14 +7,12 @@ import {
   terminateContract,
 } from "../services/contractsService";
 import useAuth from "../hooks/useAuth";
-// Importamos directamente el servicio en lugar del hook
 import { createContribution } from "../services/contributionService";
 
 export const ContractContext = createContext();
 
 export const ContractProvider = ({ children }) => {
   const { user } = useAuth();
-  // Ya no usamos el hook de contribución, ahora usamos directamente el servicio
   const [contracts, setContracts] = useState([]);
   const [selectedContract, setSelectedContract] = useState(null);
   const [error, setError] = useState(null);
@@ -104,11 +102,7 @@ export const ContractProvider = ({ children }) => {
       );
       setError(null);
 
-      // Si el salario cambió, podrías volver a generar las contribuciones.
-      // Por ejemplo, si updatedData.salary existe y es distinto:
       if (updatedData.salary) {
-        // Primero, podrías eliminar o marcar como inválidas las contribuciones anteriores
-        // asociadas a este contrato, dependiendo de tu lógica de negocio.        // Luego, vuelves a generarlas:
         const contributions = generateContributionsFromSalary(updated);
         for (const contrib of contributions) {
           try {
@@ -123,17 +117,18 @@ export const ContractProvider = ({ children }) => {
     }
   };
 
-  const handleTerminateContract = async (id, terminationDate) => {
-    try {
-      await terminateContract(id, terminationDate);
-      setContracts((prev) => prev.filter((contract) => contract.id !== id));
-      setError(null);
-      // Aquí podrías, si hace falta, marcar las contribuciones pendientes o relacionadas como "finalizadas"
-      // o bien no hacer nada si tu backend ya se encarga de eso.
-    } catch (error) {
-      setError(error);
-    }
-  };
+ const handleTerminateContract = async (id, terminationDate) => {
+  if (user.rol !== 'empleador') {
+    console.error('No tienes permisos para realizar esta acción');
+    return false;
+  }
+  try {
+    await terminateContract(id, terminationDate);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
 
   useEffect(() => {
     if (user) {

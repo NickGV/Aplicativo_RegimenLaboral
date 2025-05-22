@@ -1,21 +1,46 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Tab, Tabs } from "react-bootstrap";
 import { BsFileEarmark, BsDownload } from "react-icons/bs";
 import { jsPDF } from "jspdf";
 import useAuth from "../../hooks/useAuth";
 import useContribution from "../../hooks/useContribution";
+import { userDetail } from "../../services/authService";
 
 export const ReportsPage = () => {
   const { user } = useAuth();
   const { contributions } = useContribution();
   const userRole = user ? user.rol : null;
+  const [employerData, setEmployerData] = useState({});
 
-  // Función para generar y descargar un PDF usando datos del objeto 'contribution'
+  useEffect(() => {
+    const fetchEmployersData = async () => {
+      const employerIds = [...new Set(contributions.map((c) => c.contrato_detalle.empleador))];
+      const employerInfo = {};
+
+      for (const id of employerIds) {
+        try {
+          const data = await userDetail(id);
+          employerInfo[id] = data;
+        } catch (error) {
+          console.error(`Error fetching employer data for ID ${id}:`, error);
+          employerInfo[id] = { username: `Empleador ID: ${id}` }; // Fallback
+        }
+      }
+
+      setEmployerData(employerInfo);
+    };
+
+    if (contributions.length > 0) {
+      fetchEmployersData();
+    }
+  }, [contributions]);
+
+  
   const downloadPDF = (contribution) => {
     const doc = new jsPDF();
     let yOffset = 20;
 
-    // Extraer datos de la contribución y del contrato anidado
+    
     const {
       id: contributionId,
       arl,
@@ -38,15 +63,15 @@ export const ReportsPage = () => {
       estado,
       empleado,
       empleador,
-      // otros campos de contrato si los hubiera...
+     
     } = contrato_detalle;
 
-    // Título del PDF
+    
     doc.setFontSize(16);
     doc.text(`Reporte de Contrato #${contractId}`, 20, yOffset);
     yOffset += 10;
 
-    // Sección: Datos del Contrato
+    
     doc.setFontSize(12);
     doc.text("Datos del Contrato:", 20, yOffset);
     yOffset += 8;
@@ -74,18 +99,18 @@ export const ReportsPage = () => {
     doc.text(`Estado: ${estado}`, 20, yOffset);
     yOffset += 6;
     doc.text(`Descripción: ${descripcion || "—"}`, 20, yOffset);
+    yOffset += 6;    doc.text(`Empleado: ${empleado.username} (ID: ${empleado.id})`, 20, yOffset);
     yOffset += 6;
-    doc.text(`Empleado: ${empleado.username} (ID: ${empleado.id})`, 20, yOffset);
-    yOffset += 6;
-    doc.text(`Empleador ID: ${empleador}`, 20, yOffset);
+    const employerName = employerData[empleador]?.username || `Empleador ID: ${empleador}`;
+    doc.text(`Empleador: ${employerName}`, 20, yOffset);
     yOffset += 6;
 
-    // Si hay más campos, agregarlos aquí antes de pasar a contribuciones…
+    
     yOffset += 4;
     doc.text("Detalles de la Contribución:", 20, yOffset);
     yOffset += 8;
 
-    // Listar los valores de la contribución
+    
     doc.text(`ID Contribución: ${contributionId}`, 20, yOffset);
     yOffset += 6;
     doc.text(
@@ -95,7 +120,7 @@ export const ReportsPage = () => {
     );
     yOffset += 6;
 
-    // Encabezados de tabla para los montos
+    
     doc.setFont(undefined, "bold");
     doc.text("Concepto", 20, yOffset);
     doc.text("Monto", 100, yOffset);
@@ -120,7 +145,7 @@ export const ReportsPage = () => {
       yOffset += 6;
     });
 
-    // Descargar el PDF
+    
     const fileName = `reporte-contrato-${contractId}-contribucion-${contributionId}.pdf`;
     doc.save(fileName);
   };
@@ -144,6 +169,10 @@ export const ReportsPage = () => {
           ) : (
             <Row className="g-4">
               {contributions.map((c) => {
+                if (userRole === "empleado" && c.contrato_detalle?.empleado?.id !== user.id) {
+                  return null;
+                }
+                
                 const { contrato_detalle } = c;
                 const {
                   id: contractId,
@@ -152,7 +181,10 @@ export const ReportsPage = () => {
                   salario,
                   fecha_inicio,
                   fecha_fin,
+                  empleador
                 } = contrato_detalle;
+                
+                const employerName = employerData[empleador]?.username || `Empleador ID: ${empleador}`;
 
                 return (
                   <Col key={c.id} xs={12} md={6}>
@@ -161,12 +193,12 @@ export const ReportsPage = () => {
                         <Card.Title>Contrato #{contractId}</Card.Title>
                         <Card.Text>
                           <strong>Título:</strong> {titulo} <br />
-                          <strong>Tipo:</strong> {tipo} <br />
-                          <strong>Salario Base:</strong> {salario} <br />
+                          <strong>Tipo:</strong> {tipo} <br />                          <strong>Salario Base:</strong> {salario} <br />
                           <strong>Fecha inicio:</strong>{" "}
                           {new Date(fecha_inicio).toLocaleDateString()} <br />
                           <strong>Fecha fin:</strong>{" "}
-                          {fecha_fin ? new Date(fecha_fin).toLocaleDateString() : "—"}{" "}
+                          {fecha_fin ? new Date(fecha_fin).toLocaleDateString() : "—"}<br />
+                          <strong>Empleador:</strong> {employerName}
                         </Card.Text>
 
                         <hr />

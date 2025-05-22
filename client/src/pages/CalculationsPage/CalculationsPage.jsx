@@ -24,7 +24,7 @@ const CalculationsPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCalculo, setSelectedCalculo] = useState(null);
 
-  // Cargar cálculos guardados
+  
   useEffect(() => {
     if (contributions) {
       setCalculos(contributions);
@@ -34,7 +34,7 @@ const CalculationsPage = () => {
     try {
       const contratoId = parseInt(nuevoCalculo.contratoId);
       
-      // Formatear los datos para el backend
+      
       const contributionData = {
         contrato: contratoId,
         salario_base: parseFloat(nuevoCalculo.salarioBase),
@@ -45,10 +45,10 @@ const CalculationsPage = () => {
         total: parseFloat(nuevoCalculo.total)
       };
       
-      // Guardar en el backend
+      
       await handleCreateContribution(contributionData);
       
-      // Agregar a la lista local
+      
       setCalculos([nuevoCalculo, ...calculos]);
     } catch (error) {
       console.error("Error al guardar el cálculo:", error);
@@ -72,7 +72,7 @@ const CalculationsPage = () => {
   };
 
   const handlePrintCalculo = (calculo) => {
-    // Crear una ventana de impresión con los detalles del cálculo
+    
     const printWindow = window.open('', '_blank');
     
     const contrato = contracts.find(c => c.id === parseInt(calculo.contrato || calculo.contratoId));
@@ -160,23 +160,21 @@ const CalculationsPage = () => {
     }, 500);
   };
   const handleDownloadPdf = (calculo) => {
-    // Crear un documento PDF con los detalles del cálculo
     const contrato = contracts.find(c => c.id === parseInt(calculo.contrato || calculo.contratoId));
     const fechaCalculo = calculo.fecha_calculo ? new Date(calculo.fecha_calculo).toLocaleDateString() : new Date().toLocaleDateString();
 
     const doc = new jsPDF();
-    // Título
     doc.setFontSize(18);
     doc.text('Cálculo de Aportes', 105, 15, { align: 'center' });
 
-    // Fecha arriba a la derecha
+    
     doc.setFontSize(10);
     doc.text(`Fecha: ${fechaCalculo}`, 190, 10, { align: 'right' });
 
-    // Espaciado general
+    
     let y = 30;
 
-    // Sección: Información del Contrato
+    
     doc.setFontSize(14);
     doc.text('Información del Contrato', 10, y);
     y += 8;
@@ -189,12 +187,12 @@ const CalculationsPage = () => {
     doc.text(`$${parseInt(calculo.salario_base || 0).toLocaleString("es-CO")}`, 40, y);
     y += 12;
 
-    // Sección: Detalle de Aportes
+    
     doc.setFontSize(14);
     doc.text('Detalle de Aportes', 10, y);
     y += 8;
 
-    // Tabla de aportes
+    
     doc.setFontSize(11);
     doc.setFont(undefined, 'bold');
     doc.text('Concepto', 10, y);
@@ -223,19 +221,19 @@ const CalculationsPage = () => {
     doc.text(`$${parseInt(calculo.cesantias || 0).toLocaleString("es-CO")}`, 150, y);
     y += 8;
 
-    // Total Aportes
+    
     doc.setFont(undefined, 'bold');
     doc.text('Total Aportes', 10, y);
     doc.text(`$${parseInt(calculo.total || 0).toLocaleString("es-CO")}`, 150, y);
     doc.setFont(undefined, 'normal');
     y += 15;
 
-    // Nota final
+    
     doc.setFontSize(9);
     doc.text('Este documento es un cálculo informativo generado por el sistema de Régimen Laboral.', 10, y, { maxWidth: 190 });
 
    
-    // Descargar el PDF
+    
     const blob = doc.output('blob');
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -249,7 +247,11 @@ const CalculationsPage = () => {
     <Container className="py-4">
       {/* Encabezado */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Cálculos de Aportes</h2>
+        <h2>
+          {userRole === "empleado" 
+            ? "Mis Aportes" 
+            : "Cálculos de Aportes"}
+        </h2>
         {(userRole === "empleador" || userRole === "contador") && (
           <Button variant="primary" onClick={() => setShowForm(true)}>
             <BiPlus /> Nuevo Cálculo
@@ -314,6 +316,7 @@ const CalculationsPage = () => {
                   <td>${parseInt(calculo.total || 0).toLocaleString("es-CO")}</td>
                   <td>
                     <div className="d-flex gap-2">
+                      {/* All roles can view details */}
                       <Button 
                         variant="outline-primary" 
                         size="sm"
@@ -323,6 +326,7 @@ const CalculationsPage = () => {
                         <BiInfoCircle />
                       </Button>
                       
+                      {/* All roles can print */}
                       <Button 
                         variant="outline-success" 
                         size="sm"
@@ -332,6 +336,7 @@ const CalculationsPage = () => {
                         <BiPrinter />
                       </Button>
 
+                      {/* Only employer and accountant can delete */}
                       {(userRole === "empleador" || userRole === "contador") && (
                         <Button 
                           variant="outline-danger" 

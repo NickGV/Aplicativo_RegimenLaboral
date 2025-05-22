@@ -8,15 +8,36 @@ from datetime import date
 from .models import Contract
 from .serializers import ContractSerializer
 
-# GET /api/contracts/ => Todos los contratos del usuario
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_contracts(request):
-    contracts = Contract.objects.filter(empleador=request.user)
+    # Check user role
+    if request.user.rol == 'empleado':
+        # Employees see only their own contracts
+        contracts = Contract.objects.filter(empleado=request.user)
+    elif request.user.rol == 'empleador':
+        # Employers see contracts where they are the employer
+        contracts = Contract.objects.filter(empleador=request.user)
+    elif request.user.rol in ['contador', 'asesor_legal', 'entidad_gubernamental']:
+        # These roles need different access patterns
+        if request.user.rol == 'contador':
+            # Accountants see all contracts to calculate contributions
+            contracts = Contract.objects.all()
+        elif request.user.rol == 'asesor_legal':
+            # Legal advisors see all contracts for legal compliance
+            contracts = Contract.objects.all()
+        elif request.user.rol == 'entidad_gubernamental':
+            # Government entities see all contracts for oversight
+            contracts = Contract.objects.all()
+    else:
+        # Default case (shouldn't happen with your role system)
+        contracts = Contract.objects.none()
+        
     serializer = ContractSerializer(contracts, many=True)
     return Response(serializer.data)
 
-# POST /api/contracts/createContract/ => Crear contrato
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_contract(request):
@@ -28,7 +49,7 @@ def create_contract(request):
     return Response({"error": "Datos inválidos", "detalles": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# GET /api/contracts/<id>/ => Obtener detalle
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def retrieve_contract(request, id):
@@ -36,7 +57,7 @@ def retrieve_contract(request, id):
     serializer = ContractSerializer(contract)
     return Response(serializer.data)
 
-# PUT /api/contracts/<id>/ => Actualizar contrato
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_contract(request, id):
@@ -50,7 +71,7 @@ def update_contract(request, id):
         return Response(serializer.data)
     return Response({"error": "Datos inválidos", "detalles": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-# DELETE /api/contracts/<id>/ => Marcar como terminado
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def terminate_contract(request, id):
