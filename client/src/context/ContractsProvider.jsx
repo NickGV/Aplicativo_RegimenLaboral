@@ -7,14 +7,12 @@ import {
   terminateContract,
 } from "../services/contractsService";
 import useAuth from "../hooks/useAuth";
-// Importamos directamente el servicio en lugar del hook
 import { createContribution } from "../services/contributionService";
 
 export const ContractContext = createContext();
 
 export const ContractProvider = ({ children }) => {
   const { user } = useAuth();
-  // Ya no usamos el hook de contribución, ahora usamos directamente el servicio
   const [contracts, setContracts] = useState([]);
   const [selectedContract, setSelectedContract] = useState(null);
   const [error, setError] = useState(null);

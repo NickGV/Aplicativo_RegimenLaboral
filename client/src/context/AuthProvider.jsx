@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   });
   const [error, setError] = useState(null);
 
-  // Verificar si el token es válido al cargar la aplicación
   useEffect(() => {
     const validateToken = async () => {
       const token = localStorage.getItem("access_token");
@@ -29,14 +28,11 @@ export const AuthProvider = ({ children }) => {
       }
       
       try {
-        // Verificamos que el token sea válido haciendo una petición a la API
         await axios.get("http://localhost:8000/api/users/", {
           headers: { Authorization: `Bearer ${token}` }
         });
-        // Si la petición no falla, el token es válido
       } catch (error) {
         console.error("Token inválido:", error);
-        // Si el token es inválido, limpiamos el localStorage
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
@@ -64,7 +60,6 @@ export const AuthProvider = ({ children }) => {
       return access;
     } catch (error) {
       console.error("No se pudo refrescar el token:", error);
-      // Si el refresh token no es válido, limpiamos todo
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
