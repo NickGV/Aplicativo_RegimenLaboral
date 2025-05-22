@@ -109,7 +109,13 @@ export const ContractsPage = () => {
   return (
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Contratos</h2>
+        <h2>
+          {userRole === "empleado" 
+            ? "Mis Contratos" 
+            : userRole === "empleador" 
+              ? "Contratos de Empleados" 
+              : "Contratos"}
+        </h2>
         {userRole === "empleador" && (
           <Button variant="primary" onClick={() => setShowForm(true)}>
             <BiPlus /> Nuevo Contrato
@@ -211,6 +217,8 @@ export const ContractsPage = () => {
                         </Button>
                       </>
                     )}
+                    
+                    {/* All roles can view details/print */}
                     <Button
                       variant="outline-secondary"
                       size="sm"

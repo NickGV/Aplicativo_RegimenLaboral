@@ -1,14 +1,42 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Tab, Tabs, Form } from "react-bootstrap";
+
+import  { useState, useEffect } from "react";
+import { Container, Row, Col, Card, Button, Tab, Tabs } from "react-bootstrap";
 import { BsFileEarmark, BsDownload } from "react-icons/bs";
 import { jsPDF } from "jspdf";
 import useAuth from "../../hooks/useAuth";
 import useContribution from "../../hooks/useContribution";
+import { userDetail } from "../../services/authService";
 
 export const ReportsPage = () => {
   const { user } = useAuth();
   const { contributions } = useContribution();
   const userRole = user ? user.rol : null;
+  const [employerData, setEmployerData] = useState({});
+
+  useEffect(() => {
+    const fetchEmployersData = async () => {
+      const employerIds = [...new Set(contributions.map((c) => c.contrato_detalle.empleador))];
+      const employerInfo = {};
+
+      for (const id of employerIds) {
+        try {
+          const data = await userDetail(id);
+          employerInfo[id] = data;
+        } catch (error) {
+          console.error(`Error fetching employer data for ID ${id}:`, error);
+          employerInfo[id] = { username: `Empleador ID: ${id}` }; // Fallback
+        }
+      }
+
+      setEmployerData(employerInfo);
+    };
+
+    if (contributions.length > 0) {
+      fetchEmployersData();
+    }
+  }, [contributions]);
 
   const [filterContractId, setFilterContractId] = useState("");
   const [filterTitle, setFilterTitle] = useState("");
@@ -78,10 +106,10 @@ export const ReportsPage = () => {
     doc.text(`Estado: ${estado}`, 20, yOffset);
     yOffset += 6;
     doc.text(`Descripción: ${descripcion || "—"}`, 20, yOffset);
+    yOffset += 6;    doc.text(`Empleado: ${empleado.username} (ID: ${empleado.id})`, 20, yOffset);
     yOffset += 6;
-    doc.text(`Empleado: ${empleado.username} (ID: ${empleado.id})`, 20, yOffset);
-    yOffset += 6;
-    doc.text(`Empleador ID: ${empleador}`, 20, yOffset);
+    const employerName = employerData[empleador]?.username || `Empleador ID: ${empleador}`;
+    doc.text(`Empleador: ${employerName}`, 20, yOffset);
     yOffset += 6;
     yOffset += 4;
     doc.text("Detalles de la Contribución:", 20, yOffset);
@@ -331,6 +359,10 @@ export const ReportsPage = () => {
           ) : (
             <Row className="g-4">
               {filteredContributions.map((c) => {
+                if (userRole === "empleado" && c.contrato_detalle?.empleado?.id !== user.id) {
+                  return null;
+                }
+                
                 const { contrato_detalle } = c;
                 const {
                   id: contractId,
@@ -339,7 +371,10 @@ export const ReportsPage = () => {
                   salario,
                   fecha_inicio,
                   fecha_fin,
+                  empleador
                 } = contrato_detalle;
+                
+                const employerName = employerData[empleador]?.username || `Empleador ID: ${empleador}`;
 
                 return (
                   <Col key={c.id} xs={12} md={6}>
@@ -348,12 +383,12 @@ export const ReportsPage = () => {
                         <Card.Title>Contrato #{contractId}</Card.Title>
                         <Card.Text>
                           <strong>Título:</strong> {titulo} <br />
-                          <strong>Tipo:</strong> {tipo} <br />
-                          <strong>Salario Base:</strong> {salario} <br />
+                          <strong>Tipo:</strong> {tipo} <br />                          <strong>Salario Base:</strong> {salario} <br />
                           <strong>Fecha inicio:</strong>{" "}
                           {new Date(fecha_inicio).toLocaleDateString()} <br />
                           <strong>Fecha fin:</strong>{" "}
-                          {fecha_fin ? new Date(fecha_fin).toLocaleDateString() : "—"}{" "}
+                          {fecha_fin ? new Date(fecha_fin).toLocaleDateString() : "—"}<br />
+                          <strong>Empleador:</strong> {employerName}
                         </Card.Text>
 
                         <hr />
@@ -386,7 +421,7 @@ export const ReportsPage = () => {
                           </li>
                         </ul>
 
-                        {["empleador", "contador", "asesor_legal", "entidad_gubernamental"].includes(
+                        {["empleador", "contador", "asesor_legal", "entidad_gubernamental", "empleado"].includes(
                           userRole
                         ) && (
                           <div className="d-flex justify-content-end mt-3">
