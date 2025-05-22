@@ -18,6 +18,34 @@ export const AuthProvider = ({ children }) => {
   });
   const [error, setError] = useState(null);
 
+  // Verificar si el token es válido al cargar la aplicación
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("access_token");
+      
+      if (!token) {
+        setUser(null);
+        return;
+      }
+      
+      try {
+        // Verificamos que el token sea válido haciendo una petición a la API
+        await axios.get("http://localhost:8000/api/users/", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // Si la petición no falla, el token es válido
+      } catch (error) {
+        console.error("Token inválido:", error);
+        // Si el token es inválido, limpiamos el localStorage
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user");
+        setUser(null);
+      }
+    };
+    
+    validateToken();
+  }, []);
   const refreshAccessToken = async () => {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
@@ -32,39 +60,52 @@ export const AuthProvider = ({ children }) => {
         }
       );
       const { access } = response.data;
-      localStorage.setItem("token", access);
+      localStorage.setItem("access_token", access);
       return access;
     } catch (error) {
       console.error("No se pudo refrescar el token:", error);
-      localStorage.removeItem("token");
+      // Si el refresh token no es válido, limpiamos todo
+      localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user");
+      setUser(null);
       throw error;
     }
   };
-
   const handleRegister = async (userData) => {
     try {
       const { access, user, refresh } = await register(userData);
+      if (!access || !refresh || !user) {
+        setError({ detail: "Respuesta de registro inválida" });
+        return false;
+      }
       setUser(user);
       localStorage.setItem("access_token", access);
       localStorage.setItem("refresh_token", refresh);
       localStorage.setItem("user", JSON.stringify(user));
       setError(null);
+      return true;
     } catch (err) {
       setError(err);
+      return false;
     }
   };
-
   const handleLogin = async (credentials) => {
     try {
       const { access, refresh, user } = await login(credentials);
+      if (!access || !refresh || !user) {
+        setError({ detail: "Respuesta de autenticación inválida" });
+        return false;
+      }
       setUser(user);
       localStorage.setItem("access_token", access);
       localStorage.setItem("refresh_token", refresh);
       localStorage.setItem("user", JSON.stringify(user));
       setError(null);
+      return true;
     } catch (err) {
       setError(err);
+      return false;
     }
   };
 
@@ -112,8 +153,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       setError(err);
     }
-  };
-  useEffect(() => {
+  };  useEffect(() => {
     const REFRESH_INTERVAL = 15 * 60 * 1000;
     
     const refreshTokenSilently = async () => {
@@ -124,24 +164,19 @@ export const AuthProvider = ({ children }) => {
         console.error("Error al refrescar el token:", err);
       }
     };
-    
     let intervalId;
     
     if(user) {
-      // Ejecutar una vez al inicio
       refreshTokenSilently();
-      
-      // Configurar el intervalo para refrescar periódicamente
       intervalId = setInterval(refreshTokenSilently, REFRESH_INTERVAL);
     }
     
-    // Limpiar el intervalo cuando el componente se desmonte
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
-  }, [user]); // Solo se ejecuta cuando cambia el usuario
+  }, [user]); 
 
   return (
     <AuthContext.Provider

@@ -12,7 +12,28 @@ from .serializers import ContractSerializer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_contracts(request):
-    contracts = Contract.objects.filter(empleador=request.user)
+    # Check user role
+    if request.user.rol == 'empleado':
+        # Employees see only their own contracts
+        contracts = Contract.objects.filter(empleado=request.user)
+    elif request.user.rol == 'empleador':
+        # Employers see contracts where they are the employer
+        contracts = Contract.objects.filter(empleador=request.user)
+    elif request.user.rol in ['contador', 'asesor_legal', 'entidad_gubernamental']:
+        # These roles need different access patterns
+        if request.user.rol == 'contador':
+            # Accountants see all contracts to calculate contributions
+            contracts = Contract.objects.all()
+        elif request.user.rol == 'asesor_legal':
+            # Legal advisors see all contracts for legal compliance
+            contracts = Contract.objects.all()
+        elif request.user.rol == 'entidad_gubernamental':
+            # Government entities see all contracts for oversight
+            contracts = Contract.objects.all()
+    else:
+        # Default case (shouldn't happen with your role system)
+        contracts = Contract.objects.none()
+        
     serializer = ContractSerializer(contracts, many=True)
     return Response(serializer.data)
 
