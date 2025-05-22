@@ -25,7 +25,8 @@ export const login = async (credentials) => {
     const response = await axios.post(`${API_URL}login/`, credentials);
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    console.error("Error durante el login:", error.response?.data || error.message);
+    throw error.response?.data || { detail: "Error de conexión con el servidor" };
   }
 };
 

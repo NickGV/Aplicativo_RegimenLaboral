@@ -247,7 +247,11 @@ const CalculationsPage = () => {
     <Container className="py-4">
       {/* Encabezado */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Cálculos de Aportes</h2>
+        <h2>
+          {userRole === "empleado" 
+            ? "Mis Aportes" 
+            : "Cálculos de Aportes"}
+        </h2>
         {(userRole === "empleador" || userRole === "contador") && (
           <Button variant="primary" onClick={() => setShowForm(true)}>
             <BiPlus /> Nuevo Cálculo
@@ -312,6 +316,7 @@ const CalculationsPage = () => {
                   <td>${parseInt(calculo.total || 0).toLocaleString("es-CO")}</td>
                   <td>
                     <div className="d-flex gap-2">
+                      {/* All roles can view details */}
                       <Button 
                         variant="outline-primary" 
                         size="sm"
@@ -321,6 +326,7 @@ const CalculationsPage = () => {
                         <BiInfoCircle />
                       </Button>
                       
+                      {/* All roles can print */}
                       <Button 
                         variant="outline-success" 
                         size="sm"
@@ -330,6 +336,7 @@ const CalculationsPage = () => {
                         <BiPrinter />
                       </Button>
 
+                      {/* Only employer and accountant can delete */}
                       {(userRole === "empleador" || userRole === "contador") && (
                         <Button 
                           variant="outline-danger" 
