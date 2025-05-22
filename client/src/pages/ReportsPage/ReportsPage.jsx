@@ -1,5 +1,5 @@
-import React from "react";
-import { Container, Row, Col, Card, Button, Tab, Tabs } from "react-bootstrap";
+import React, { useState } from "react";
+import { Container, Row, Col, Card, Button, Tab, Tabs, Form } from "react-bootstrap";
 import { BsFileEarmark, BsDownload } from "react-icons/bs";
 import { jsPDF } from "jspdf";
 import useAuth from "../../hooks/useAuth";
@@ -10,12 +10,23 @@ export const ReportsPage = () => {
   const { contributions } = useContribution();
   const userRole = user ? user.rol : null;
 
-  
+  const [filterContractId, setFilterContractId] = useState("");
+  const [filterTitle, setFilterTitle] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [filterSalary, setFilterSalary] = useState("");
+  const [filterFechaInicio, setFilterFechaInicio] = useState("");
+  const [filterFechaFin, setFilterFechaFin] = useState("");
+  const [filterContributionId, setFilterContributionId] = useState("");
+  const [filterFechaCalculo, setFilterFechaCalculo] = useState("");
+  const [filterArl, setFilterArl] = useState("");
+  const [filterCesantias, setFilterCesantias] = useState("");
+  const [filterEps, setFilterEps] = useState("");
+  const [filterPension, setFilterPension] = useState("");
+  const [filterTotal, setFilterTotal] = useState("");
+
   const downloadPDF = (contribution) => {
     const doc = new jsPDF();
     let yOffset = 20;
-
-    
     const {
       id: contributionId,
       arl,
@@ -26,7 +37,6 @@ export const ReportsPage = () => {
       fecha_calculo,
       contrato_detalle,
     } = contribution;
-
     const {
       id: contractId,
       titulo,
@@ -38,19 +48,13 @@ export const ReportsPage = () => {
       estado,
       empleado,
       empleador,
-     
     } = contrato_detalle;
-
-    
     doc.setFontSize(16);
     doc.text(`Reporte de Contrato #${contractId}`, 20, yOffset);
     yOffset += 10;
-
-    
     doc.setFontSize(12);
     doc.text("Datos del Contrato:", 20, yOffset);
     yOffset += 8;
-
     doc.text(`ID: ${contractId}`, 20, yOffset);
     yOffset += 6;
     doc.text(`Título: ${titulo}`, 20, yOffset);
@@ -79,13 +83,9 @@ export const ReportsPage = () => {
     yOffset += 6;
     doc.text(`Empleador ID: ${empleador}`, 20, yOffset);
     yOffset += 6;
-
-    
     yOffset += 4;
     doc.text("Detalles de la Contribución:", 20, yOffset);
     yOffset += 8;
-
-    
     doc.text(`ID Contribución: ${contributionId}`, 20, yOffset);
     yOffset += 6;
     doc.text(
@@ -94,14 +94,11 @@ export const ReportsPage = () => {
       yOffset
     );
     yOffset += 6;
-
-    
     doc.setFont(undefined, "bold");
     doc.text("Concepto", 20, yOffset);
     doc.text("Monto", 100, yOffset);
     doc.setFont(undefined, "normal");
     yOffset += 6;
-
     const lineItems = [
       { label: "ARL", value: arl },
       { label: "Cesantías", value: cesantias },
@@ -109,7 +106,6 @@ export const ReportsPage = () => {
       { label: "Pensión", value: pension },
       { label: "Total", value: total },
     ];
-
     lineItems.forEach(({ label, value }) => {
       if (yOffset > 280) {
         doc.addPage();
@@ -119,11 +115,93 @@ export const ReportsPage = () => {
       doc.text(String(value), 100, yOffset);
       yOffset += 6;
     });
-
-    
     const fileName = `reporte-contrato-${contractId}-contribucion-${contributionId}.pdf`;
     doc.save(fileName);
   };
+
+  const filteredContributions = contributions.filter((c) => {
+    const cd = c.contrato_detalle;
+    if (
+      filterContractId &&
+      String(cd.id) !== filterContractId.trim()
+    ) {
+      return false;
+    }
+    if (
+      filterTitle &&
+      !cd.titulo.toLowerCase().includes(filterTitle.trim().toLowerCase())
+    ) {
+      return false;
+    }
+    if (
+      filterType &&
+      !cd.tipo.toLowerCase().includes(filterType.trim().toLowerCase())
+    ) {
+      return false;
+    }
+    if (
+      filterSalary &&
+      String(cd.salario) !== filterSalary.trim()
+    ) {
+      return false;
+    }
+    if (
+      filterFechaInicio &&
+      new Date(cd.fecha_inicio).toISOString().slice(0, 10) !== filterFechaInicio
+    ) {
+      return false;
+    }
+    if (
+      filterFechaFin &&
+      cd.fecha_fin &&
+      new Date(cd.fecha_fin).toISOString().slice(0, 10) !== filterFechaFin
+    ) {
+      return false;
+    }
+    if (
+      filterContributionId &&
+      String(c.id) !== filterContributionId.trim()
+    ) {
+      return false;
+    }
+    if (
+      filterFechaCalculo &&
+      new Date(c.fecha_calculo).toISOString().slice(0, 10) !== filterFechaCalculo
+    ) {
+      return false;
+    }
+    if (
+      filterArl &&
+      String(c.arl) !== filterArl.trim()
+    ) {
+      return false;
+    }
+    if (
+      filterCesantias &&
+      String(c.cesantias) !== filterCesantias.trim()
+    ) {
+      return false;
+    }
+    if (
+      filterEps &&
+      String(c.eps) !== filterEps.trim()
+    ) {
+      return false;
+    }
+    if (
+      filterPension &&
+      String(c.pension) !== filterPension.trim()
+    ) {
+      return false;
+    }
+    if (
+      filterTotal &&
+      String(c.total) !== filterTotal.trim()
+    ) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <Container className="p-4">
@@ -139,11 +217,120 @@ export const ReportsPage = () => {
             )
           }
         >
-          {contributions.length === 0 ? (
+          <Form className="mb-4">
+            <Row className="g-3">
+              <Col md={2}>
+                <Form.Label>Contrato ID</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterContractId}
+                  onChange={(e) => setFilterContractId(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Título</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterTitle}
+                  onChange={(e) => setFilterTitle(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Tipo</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Salario</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterSalary}
+                  onChange={(e) => setFilterSalary(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Fecha Inicio</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={filterFechaInicio}
+                  onChange={(e) => setFilterFechaInicio(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Fecha Fin</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={filterFechaFin}
+                  onChange={(e) => setFilterFechaFin(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Contribución ID</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterContributionId}
+                  onChange={(e) => setFilterContributionId(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Fecha Cálculo</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={filterFechaCalculo}
+                  onChange={(e) => setFilterFechaCalculo(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>ARL</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterArl}
+                  onChange={(e) => setFilterArl(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Cesantías</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterCesantias}
+                  onChange={(e) => setFilterCesantias(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>EPS</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterEps}
+                  onChange={(e) => setFilterEps(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Pensión</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterPension}
+                  onChange={(e) => setFilterPension(e.target.value)}
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Label>Total</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filterTotal}
+                  onChange={(e) => setFilterTotal(e.target.value)}
+                />
+              </Col>
+            </Row>
+          </Form>
+
+          {filteredContributions.length === 0 ? (
             <p className="text-muted">No hay cálculos disponibles para mostrar.</p>
           ) : (
             <Row className="g-4">
-              {contributions.map((c) => {
+              {filteredContributions.map((c) => {
                 const { contrato_detalle } = c;
                 const {
                   id: contractId,
@@ -220,8 +407,6 @@ export const ReportsPage = () => {
             </Row>
           )}
         </Tab>
-
-        
       </Tabs>
     </Container>
   );

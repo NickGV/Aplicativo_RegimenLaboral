@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Card, Button, Container, Table, Spinner, Modal } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Card, Button, Container, Table, Spinner, Modal, Form, Row, Col } from "react-bootstrap";
 import { BiCalculator, BiPlus, BiTrash, BiInfoCircle, BiPrinter } from "react-icons/bi";
 import CalculationsForm from "../../components/Calculations/CalculationsForm";
 import useAuth from "../../hooks/useAuth";
@@ -21,20 +21,19 @@ const CalculationsPage = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [calculos, setCalculos] = useState([]);
+  const [filterContract, setFilterContract] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCalculo, setSelectedCalculo] = useState(null);
 
-  
   useEffect(() => {
     if (contributions) {
       setCalculos(contributions);
     }
   }, [contributions]);
+
   const guardarCalculo = async (nuevoCalculo) => {
     try {
       const contratoId = parseInt(nuevoCalculo.contratoId);
-      
-      
       const contributionData = {
         contrato: contratoId,
         salario_base: parseFloat(nuevoCalculo.salarioBase),
@@ -44,11 +43,7 @@ const CalculationsPage = () => {
         cesantias: parseFloat(nuevoCalculo.cesantias),
         total: parseFloat(nuevoCalculo.total)
       };
-      
-      
       await handleCreateContribution(contributionData);
-      
-      
       setCalculos([nuevoCalculo, ...calculos]);
     } catch (error) {
       console.error("Error al guardar el cálculo:", error);
@@ -72,12 +67,9 @@ const CalculationsPage = () => {
   };
 
   const handlePrintCalculo = (calculo) => {
-    
     const printWindow = window.open('', '_blank');
-    
     const contrato = contracts.find(c => c.id === parseInt(calculo.contrato || calculo.contratoId));
     const fechaCalculo = calculo.fecha_calculo ? new Date(calculo.fecha_calculo).toLocaleDateString() : new Date().toLocaleDateString();
-    
     printWindow.document.write(`
       <html>
         <head>
@@ -99,7 +91,6 @@ const CalculationsPage = () => {
               <h1>Cálculo de Aportes</h1>
               <p>Fecha: ${fechaCalculo}</p>
             </div>
-            
             <h2>Información del Contrato</h2>
             <table>
               <tr>
@@ -111,7 +102,6 @@ const CalculationsPage = () => {
                 <td>$${parseInt(calculo.salario_base || 0).toLocaleString("es-CO")}</td>
               </tr>
             </table>
-            
             <h2>Detalle de Aportes</h2>
             <table>
               <tr>
@@ -144,7 +134,6 @@ const CalculationsPage = () => {
                 <th>$${parseInt(calculo.total || 0).toLocaleString("es-CO")}</th>
               </tr>
             </table>
-            
             <div class="footer">
               <p>Este documento es un cálculo informativo generado por el sistema de Régimen Laboral.</p>
             </div>
@@ -152,33 +141,25 @@ const CalculationsPage = () => {
         </body>
       </html>
     `);
-    
     printWindow.document.close();
     printWindow.focus();
     setTimeout(() => {
       printWindow.print();
     }, 500);
   };
+
   const handleDownloadPdf = (calculo) => {
     const contrato = contracts.find(c => c.id === parseInt(calculo.contrato || calculo.contratoId));
     const fechaCalculo = calculo.fecha_calculo ? new Date(calculo.fecha_calculo).toLocaleDateString() : new Date().toLocaleDateString();
-
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text('Cálculo de Aportes', 105, 15, { align: 'center' });
-
-    
     doc.setFontSize(10);
     doc.text(`Fecha: ${fechaCalculo}`, 190, 10, { align: 'right' });
-
-    
     let y = 30;
-
-    
     doc.setFontSize(14);
     doc.text('Información del Contrato', 10, y);
     y += 8;
-
     doc.setFontSize(11);
     doc.text(`Contrato:`, 10, y);
     doc.text(`${contrato?.titulo || "No disponible"}`, 40, y);
@@ -186,13 +167,9 @@ const CalculationsPage = () => {
     doc.text(`Salario Base:`, 10, y);
     doc.text(`$${parseInt(calculo.salario_base || 0).toLocaleString("es-CO")}`, 40, y);
     y += 12;
-
-    
     doc.setFontSize(14);
     doc.text('Detalle de Aportes', 10, y);
     y += 8;
-
-    
     doc.setFontSize(11);
     doc.setFont(undefined, 'bold');
     doc.text('Concepto', 10, y);
@@ -200,40 +177,29 @@ const CalculationsPage = () => {
     doc.text('Valor', 150, y);
     doc.setFont(undefined, 'normal');
     y += 6;
-
     doc.text('Aporte a EPS', 10, y);
     doc.text('8.5%', 90, y);
     doc.text(`$${parseInt(calculo.eps || 0).toLocaleString("es-CO")}`, 150, y);
     y += 6;
-
     doc.text('Aporte a ARL (Riesgo I)', 10, y);
     doc.text('0.522%', 90, y);
     doc.text(`$${parseInt(calculo.arl || 0).toLocaleString("es-CO")}`, 150, y);
     y += 6;
-
     doc.text('Aporte a Pensión', 10, y);
     doc.text('12%', 90, y);
     doc.text(`$${parseInt(calculo.pension || 0).toLocaleString("es-CO")}`, 150, y);
     y += 6;
-
     doc.text('Aporte a Cesantías', 10, y);
     doc.text('8.33%', 90, y);
     doc.text(`$${parseInt(calculo.cesantias || 0).toLocaleString("es-CO")}`, 150, y);
     y += 8;
-
-    
     doc.setFont(undefined, 'bold');
     doc.text('Total Aportes', 10, y);
     doc.text(`$${parseInt(calculo.total || 0).toLocaleString("es-CO")}`, 150, y);
     doc.setFont(undefined, 'normal');
     y += 15;
-
-    
     doc.setFontSize(9);
     doc.text('Este documento es un cálculo informativo generado por el sistema de Régimen Laboral.', 10, y, { maxWidth: 190 });
-
-   
-    
     const blob = doc.output('blob');
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -241,11 +207,20 @@ const CalculationsPage = () => {
     a.download = 'calculo_de_aportes.pdf';
     a.click();
   };
+
   const loading = loadingContributions || loadingContracts;
+
+  const filteredCalculos = calculos.filter((calculo) => {
+    const contrato = contracts.find(c => c.id === parseInt(calculo.contrato || calculo.contratoId));
+    const titulo = contrato?.titulo?.toLowerCase() || "";
+    return (
+      !filterContract ||
+      titulo.includes(filterContract.trim().toLowerCase())
+    );
+  });
 
   return (
     <Container className="py-4">
-      {/* Encabezado */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Cálculos de Aportes</h2>
         {(userRole === "empleador" || userRole === "contador") && (
@@ -255,11 +230,24 @@ const CalculationsPage = () => {
         )}
       </div>
 
+      <Form className="mb-4">
+        <Row className="g-3">
+          <Col md={4}>
+            <Form.Label>Filtrar por Contrato</Form.Label>
+            <Form.Control
+              type="text"
+              value={filterContract}
+              onChange={(e) => setFilterContract(e.target.value)}
+            />
+          </Col>
+        </Row>
+      </Form>
+
       {loading ? (
         <div className="text-center my-5">
           <Spinner animation="border" />
         </div>
-      ) : calculos.length === 0 ? (
+      ) : filteredCalculos.length === 0 ? (
         <Card className="shadow-sm text-center py-5">
           <BiCalculator
             className="text-muted mx-auto"
@@ -296,11 +284,12 @@ const CalculationsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {calculos.map((calculo, index) => {
+            {filteredCalculos.map((calculo, index) => {
               const contrato = contracts.find(
                 (c) => c.id === parseInt(calculo.contrato || calculo.contratoId)
               );
-              return (                <tr key={index}>
+              return (
+                <tr key={index}>
                   <td>{contrato?.titulo || "Contrato no encontrado"}</td>
                   <td>
                     ${parseInt(calculo.salarioBase || calculo.salario_base || 0).toLocaleString("es-CO")}
@@ -320,7 +309,6 @@ const CalculationsPage = () => {
                       >
                         <BiInfoCircle />
                       </Button>
-                      
                       <Button 
                         variant="outline-success" 
                         size="sm"
@@ -329,7 +317,6 @@ const CalculationsPage = () => {
                       >
                         <BiPrinter />
                       </Button>
-
                       {(userRole === "empleador" || userRole === "contador") && (
                         <Button 
                           variant="outline-danger" 
@@ -356,7 +343,6 @@ const CalculationsPage = () => {
         guardarCalculo={guardarCalculo}
       />
 
-      {/* Modal para mostrar detalles del cálculo */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Detalle del Cálculo de Aportes</Modal.Title>
@@ -387,7 +373,6 @@ const CalculationsPage = () => {
                   </tr>
                 </tbody>
               </Table>
-
               <h5>Desglose de Aportes</h5>
               <Table bordered className="mb-4">
                 <thead className="bg-light">
@@ -424,7 +409,6 @@ const CalculationsPage = () => {
                   </tr>
                 </tbody>
               </Table>
-
               <div className="alert alert-info">
                 <small>
                   <strong>Nota:</strong> Los cálculos se realizan de acuerdo a la normativa colombiana vigente. 
