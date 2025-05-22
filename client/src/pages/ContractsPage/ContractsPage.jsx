@@ -4,6 +4,7 @@ import { BiSearch, BiPencil, BiTrash, BiDollar, BiPlus } from "react-icons/bi";
 import { ContractForm } from "../../components/Contracts/ContractForm";
 import useAuth from "../../hooks/useAuth";
 import useContracts from "../../hooks/useContracts";
+import jsPDF from "jspdf";
 
 export const ContractsPage = () => {
   const { user } = useAuth();
@@ -46,6 +47,29 @@ export const ContractsPage = () => {
   const handleToggleEstado = (contrato) => {
     const nuevoEstado = contrato.estado === "Activo" ? "Terminado" : "Activo";
     handleUpdateContract(contrato.id, { estado: nuevoEstado });
+  };
+  const generarPDF = (contrato) => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Contrato de Trabajo", 105, 20, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.text(`Título: ${contrato.titulo}`, 10, 40);
+    doc.text(`Empleado: ${contrato.empleado?.username || contrato.empleado?.email || contrato.empleado}`, 10, 50);
+    doc.text(`Tipo: ${contrato.tipo?.replace(/_/g, " ")}`, 10, 60);
+    doc.text(`Fecha de Inicio: ${contrato.fecha_inicio}`, 10, 70);
+    doc.text(`Salario: $${parseInt(contrato.salario).toLocaleString("es-CO")}`, 10, 80);
+    doc.text(`Estado: ${contrato.estado}`, 10, 90);
+
+    doc.setFontSize(14);
+    doc.text(`Detalles del Contrato: ${contrato.descripcion}`, 10, 100);
+
+
+    doc.setFontSize(10);
+    doc.text("Este documento es un resumen informativo del contrato registrado en el sistema.", 10, 110, { maxWidth: 190 });
+
+    doc.save(`Contrato_${contrato.titulo.replace(/\s+/g, "_")}.pdf`);
   };
 
   return (
@@ -122,6 +146,14 @@ export const ContractsPage = () => {
 
                       </>
                     )}
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => generarPDF(contrato)}
+                    >
+                      🧾 PDF
+                    </Button>
                     <Button variant="outline-success" size="sm">
                       <BiDollar /> Pagar
                     </Button>

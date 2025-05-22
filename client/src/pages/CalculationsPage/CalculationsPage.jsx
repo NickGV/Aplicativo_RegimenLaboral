@@ -5,6 +5,8 @@ import CalculationsForm from "../../components/Calculations/CalculationsForm";
 import useAuth from "../../hooks/useAuth";
 import useContracts from "../../hooks/useContracts";
 import useContribution from "../../hooks/useContribution";
+import jsPDF from 'jspdf';
+import { BiSolidFilePdf } from 'react-icons/bi';
 
 const CalculationsPage = () => {
   const { user } = useAuth();
@@ -106,7 +108,7 @@ const CalculationsPage = () => {
               </tr>
               <tr>
                 <th>Salario Base</th>
-                <td>$${parseInt(calculo.salarioBase || 0).toLocaleString("es-CO")}</td>
+                <td>$${parseInt(calculo.salario_base || 0).toLocaleString("es-CO")}</td>
               </tr>
             </table>
             
@@ -157,7 +159,90 @@ const CalculationsPage = () => {
       printWindow.print();
     }, 500);
   };
+  const handleDownloadPdf = (calculo) => {
+    // Crear un documento PDF con los detalles del cálculo
+    const contrato = contracts.find(c => c.id === parseInt(calculo.contrato || calculo.contratoId));
+    const fechaCalculo = calculo.fecha_calculo ? new Date(calculo.fecha_calculo).toLocaleDateString() : new Date().toLocaleDateString();
 
+    const doc = new jsPDF();
+    // Título
+    doc.setFontSize(18);
+    doc.text('Cálculo de Aportes', 105, 15, { align: 'center' });
+
+    // Fecha arriba a la derecha
+    doc.setFontSize(10);
+    doc.text(`Fecha: ${fechaCalculo}`, 190, 10, { align: 'right' });
+
+    // Espaciado general
+    let y = 30;
+
+    // Sección: Información del Contrato
+    doc.setFontSize(14);
+    doc.text('Información del Contrato', 10, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.text(`Contrato:`, 10, y);
+    doc.text(`${contrato?.titulo || "No disponible"}`, 40, y);
+    y += 7;
+    doc.text(`Salario Base:`, 10, y);
+    doc.text(`$${parseInt(calculo.salario_base || 0).toLocaleString("es-CO")}`, 40, y);
+    y += 12;
+
+    // Sección: Detalle de Aportes
+    doc.setFontSize(14);
+    doc.text('Detalle de Aportes', 10, y);
+    y += 8;
+
+    // Tabla de aportes
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'bold');
+    doc.text('Concepto', 10, y);
+    doc.text('Porcentaje', 90, y);
+    doc.text('Valor', 150, y);
+    doc.setFont(undefined, 'normal');
+    y += 6;
+
+    doc.text('Aporte a EPS', 10, y);
+    doc.text('8.5%', 90, y);
+    doc.text(`$${parseInt(calculo.eps || 0).toLocaleString("es-CO")}`, 150, y);
+    y += 6;
+
+    doc.text('Aporte a ARL (Riesgo I)', 10, y);
+    doc.text('0.522%', 90, y);
+    doc.text(`$${parseInt(calculo.arl || 0).toLocaleString("es-CO")}`, 150, y);
+    y += 6;
+
+    doc.text('Aporte a Pensión', 10, y);
+    doc.text('12%', 90, y);
+    doc.text(`$${parseInt(calculo.pension || 0).toLocaleString("es-CO")}`, 150, y);
+    y += 6;
+
+    doc.text('Aporte a Cesantías', 10, y);
+    doc.text('8.33%', 90, y);
+    doc.text(`$${parseInt(calculo.cesantias || 0).toLocaleString("es-CO")}`, 150, y);
+    y += 8;
+
+    // Total Aportes
+    doc.setFont(undefined, 'bold');
+    doc.text('Total Aportes', 10, y);
+    doc.text(`$${parseInt(calculo.total || 0).toLocaleString("es-CO")}`, 150, y);
+    doc.setFont(undefined, 'normal');
+    y += 15;
+
+    // Nota final
+    doc.setFontSize(9);
+    doc.text('Este documento es un cálculo informativo generado por el sistema de Régimen Laboral.', 10, y, { maxWidth: 190 });
+
+   
+    // Descargar el PDF
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'calculo_de_aportes.pdf';
+    a.click();
+  };
   const loading = loadingContributions || loadingContracts;
 
   return (
@@ -292,7 +377,7 @@ const CalculationsPage = () => {
                   </tr>
                   <tr>
                     <th className="bg-light">Salario Base</th>
-                    <td>${parseInt(selectedCalculo.salarioBase || 0).toLocaleString("es-CO")}</td>
+                    <td>${parseInt(selectedCalculo.salario_base || 0).toLocaleString("es-CO")}</td>
                   </tr>
                   <tr>
                     <th className="bg-light">Fecha de Cálculo</th>
@@ -364,6 +449,15 @@ const CalculationsPage = () => {
             }}
           >
             <BiPrinter /> Imprimir
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowDetailModal(false);
+              handleDownloadPdf(selectedCalculo);
+            }}
+          >
+            <BiSolidFilePdf /> Descargar PDF
           </Button>
         </Modal.Footer>
       </Modal>
