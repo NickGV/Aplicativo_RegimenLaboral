@@ -128,20 +128,17 @@ export const AuthProvider = ({ children }) => {
     let intervalId;
     
     if(user) {
-      // Ejecutar una vez al inicio
       refreshTokenSilently();
       
-      // Configurar el intervalo para refrescar periódicamente
       intervalId = setInterval(refreshTokenSilently, REFRESH_INTERVAL);
     }
     
-    // Limpiar el intervalo cuando el componente se desmonte
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
-  }, [user]); // Solo se ejecuta cuando cambia el usuario
+  }, [user]); 
 
   return (
     <AuthContext.Provider

@@ -10,12 +10,12 @@ export const ReportsPage = () => {
   const { contributions } = useContribution();
   const userRole = user ? user.rol : null;
 
-  // Función para generar y descargar un PDF usando datos del objeto 'contribution'
+  
   const downloadPDF = (contribution) => {
     const doc = new jsPDF();
     let yOffset = 20;
 
-    // Extraer datos de la contribución y del contrato anidado
+    
     const {
       id: contributionId,
       arl,
@@ -38,15 +38,15 @@ export const ReportsPage = () => {
       estado,
       empleado,
       empleador,
-      // otros campos de contrato si los hubiera...
+     
     } = contrato_detalle;
 
-    // Título del PDF
+    
     doc.setFontSize(16);
     doc.text(`Reporte de Contrato #${contractId}`, 20, yOffset);
     yOffset += 10;
 
-    // Sección: Datos del Contrato
+    
     doc.setFontSize(12);
     doc.text("Datos del Contrato:", 20, yOffset);
     yOffset += 8;
@@ -80,12 +80,12 @@ export const ReportsPage = () => {
     doc.text(`Empleador ID: ${empleador}`, 20, yOffset);
     yOffset += 6;
 
-    // Si hay más campos, agregarlos aquí antes de pasar a contribuciones…
+    
     yOffset += 4;
     doc.text("Detalles de la Contribución:", 20, yOffset);
     yOffset += 8;
 
-    // Listar los valores de la contribución
+    
     doc.text(`ID Contribución: ${contributionId}`, 20, yOffset);
     yOffset += 6;
     doc.text(
@@ -95,7 +95,7 @@ export const ReportsPage = () => {
     );
     yOffset += 6;
 
-    // Encabezados de tabla para los montos
+    
     doc.setFont(undefined, "bold");
     doc.text("Concepto", 20, yOffset);
     doc.text("Monto", 100, yOffset);
@@ -120,7 +120,7 @@ export const ReportsPage = () => {
       yOffset += 6;
     });
 
-    // Descargar el PDF
+    
     const fileName = `reporte-contrato-${contractId}-contribucion-${contributionId}.pdf`;
     doc.save(fileName);
   };

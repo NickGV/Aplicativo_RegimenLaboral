@@ -13,12 +13,12 @@ export const Dashboard = () => {
   const { contracts } = useContracts();
   const [showForm, setShowForm] = useState(false);
 
-  // Totales
+  
   const totalContratos = contracts.length;
   const activos = contracts.filter((c) => c.estado === "Activo").length;
   const finalizados = contracts.filter((c) => c.estado !== "Activo").length;
 
-  // Contratos recientes (últimos 5)
+  
   const contratosRecientes = [...contracts]
     .sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en))
     .slice(0, 5);
