@@ -154,9 +154,6 @@ export const ContractsPage = () => {
                     >
                       🧾 PDF
                     </Button>
-                    <Button variant="outline-success" size="sm">
-                      <BiDollar /> Pagar
-                    </Button>
                   </td>
                 </tr>
               ))

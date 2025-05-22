@@ -221,9 +221,7 @@ export const ReportsPage = () => {
           )}
         </Tab>
 
-        <Tab eventKey="summary" title="Resumen (Próximamente)" disabled>
-          <p className="text-muted">Esta sección estará disponible próximamente.</p>
-        </Tab>
+        
       </Tabs>
     </Container>
   );
