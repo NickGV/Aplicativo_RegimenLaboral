@@ -24,10 +24,9 @@ def get_contribution(pk):
 def contribution_list(request):
 
     if request.method == 'GET':
-        if request.user.rol == 'empleado':
 
-            contributions = Contribution.objects.filter(contrato__empleado=request.user)
-        elif request.user.rol == 'empleador':
+        if request.user.rol == 'empleador':
+
             contributions = Contribution.objects.filter(contrato__empleador=request.user)
         elif request.user.rol in ['contador', 'asesor_legal', 'entidad_gubernamental']:
             contributions = Contribution.objects.all()
