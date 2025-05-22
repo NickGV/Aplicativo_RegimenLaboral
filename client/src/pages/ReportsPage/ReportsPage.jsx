@@ -168,7 +168,12 @@ export const ReportsPage = () => {
             <p className="text-muted">No hay cálculos disponibles para mostrar.</p>
           ) : (
             <Row className="g-4">
-              {contributions.map((c) => {                const { contrato_detalle } = c;
+              {contributions.map((c) => {
+                if (userRole === "empleado" && c.contrato_detalle?.empleado?.id !== user.id) {
+                  return null;
+                }
+                
+                const { contrato_detalle } = c;
                 const {
                   id: contractId,
                   titulo,
