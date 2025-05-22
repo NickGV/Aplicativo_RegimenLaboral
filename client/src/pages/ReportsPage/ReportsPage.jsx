@@ -3,47 +3,61 @@ import { Container, Row, Col, Card, Button, Tab, Tabs } from "react-bootstrap";
 import { BsFileEarmark, BsDownload } from "react-icons/bs";
 import { jsPDF } from "jspdf";
 import useAuth from "../../hooks/useAuth";
-import useContracts from "../../hooks/useContracts";
 import useContribution from "../../hooks/useContribution";
 
 export const ReportsPage = () => {
   const { user } = useAuth();
-  const { contracts } = useContracts();
   const { contributions } = useContribution();
   const userRole = user ? user.rol : null;
 
-  // Combina cada contrato con sus contribuciones asociadas
-  const combinedReports = contracts.map((contract) => {
-    const relatedContributions = contributions.filter(
-      (c) => c.contractId === contract.id
-    );
-    return { contract, contributions: relatedContributions };
-  });
-
-  // Función para generar y descargar un PDF con los datos de contrato y sus contribuciones
-  const downloadPDF = (contract, contributions) => {
+  // Función para generar y descargar un PDF usando datos del objeto 'contribution'
+  const downloadPDF = (contribution) => {
     const doc = new jsPDF();
-
     let yOffset = 20;
+
+    // Extraer datos de la contribución y del contrato anidado
+    const {
+      id: contributionId,
+      arl,
+      cesantias,
+      eps,
+      pension,
+      total,
+      fecha_calculo,
+      contrato_detalle,
+    } = contribution;
+
+    const {
+      id: contractId,
+      titulo,
+      tipo,
+      salario,
+      fecha_inicio,
+      fecha_fin,
+      descripcion,
+      estado,
+      empleado,
+      empleador,
+      // otros campos de contrato si los hubiera...
+    } = contrato_detalle;
+
+    // Título del PDF
     doc.setFontSize(16);
-    doc.text(`Reporte de Contrato #${contract.id}`, 20, yOffset);
+    doc.text(`Reporte de Contrato #${contractId}`, 20, yOffset);
     yOffset += 10;
 
+    // Sección: Datos del Contrato
     doc.setFontSize(12);
     doc.text("Datos del Contrato:", 20, yOffset);
     yOffset += 8;
 
-    // Listar propiedades principales del contrato
-    const {
-      id,
-      salary,
-      fecha_inicio,
-      fecha_fin,
-      ...otherFields
-    } = contract;
-    doc.text(`ID: ${id}`, 20, yOffset);
+    doc.text(`ID: ${contractId}`, 20, yOffset);
     yOffset += 6;
-    doc.text(`Salario: ${salary}`, 20, yOffset);
+    doc.text(`Título: ${titulo}`, 20, yOffset);
+    yOffset += 6;
+    doc.text(`Tipo: ${tipo}`, 20, yOffset);
+    yOffset += 6;
+    doc.text(`Salario Base: ${salario}`, 20, yOffset);
     yOffset += 6;
     doc.text(
       `Fecha inicio: ${new Date(fecha_inicio).toLocaleDateString()}`,
@@ -52,55 +66,62 @@ export const ReportsPage = () => {
     );
     yOffset += 6;
     doc.text(
-      `Fecha fin: ${
-        fecha_fin ? new Date(fecha_fin).toLocaleDateString() : "—"
-      }`,
+      `Fecha fin: ${fecha_fin ? new Date(fecha_fin).toLocaleDateString() : "—"}`,
+      20,
+      yOffset
+    );
+    yOffset += 6;
+    doc.text(`Estado: ${estado}`, 20, yOffset);
+    yOffset += 6;
+    doc.text(`Descripción: ${descripcion || "—"}`, 20, yOffset);
+    yOffset += 6;
+    doc.text(`Empleado: ${empleado.username} (ID: ${empleado.id})`, 20, yOffset);
+    yOffset += 6;
+    doc.text(`Empleador ID: ${empleador}`, 20, yOffset);
+    yOffset += 6;
+
+    // Si hay más campos, agregarlos aquí antes de pasar a contribuciones…
+    yOffset += 4;
+    doc.text("Detalles de la Contribución:", 20, yOffset);
+    yOffset += 8;
+
+    // Listar los valores de la contribución
+    doc.text(`ID Contribución: ${contributionId}`, 20, yOffset);
+    yOffset += 6;
+    doc.text(
+      `Fecha de Cálculo: ${new Date(fecha_calculo).toLocaleDateString()}`,
       20,
       yOffset
     );
     yOffset += 6;
 
-    // Mostrar cualquier otro campo adicional del contrato
-    Object.entries(otherFields).forEach(([key, value]) => {
-      const textLine = `${key}: ${value !== null ? value : "—"}`;
-      doc.text(textLine, 20, yOffset);
-      yOffset += 6;
-      if (yOffset > 270) {
+    // Encabezados de tabla para los montos
+    doc.setFont(undefined, "bold");
+    doc.text("Concepto", 20, yOffset);
+    doc.text("Monto", 100, yOffset);
+    doc.setFont(undefined, "normal");
+    yOffset += 6;
+
+    const lineItems = [
+      { label: "ARL", value: arl },
+      { label: "Cesantías", value: cesantias },
+      { label: "EPS", value: eps },
+      { label: "Pensión", value: pension },
+      { label: "Total", value: total },
+    ];
+
+    lineItems.forEach(({ label, value }) => {
+      if (yOffset > 280) {
         doc.addPage();
         yOffset = 20;
       }
+      doc.text(label, 20, yOffset);
+      doc.text(String(value), 100, yOffset);
+      yOffset += 6;
     });
 
-    yOffset += 4;
-    doc.text("Contribuciones Asociadas:", 20, yOffset);
-    yOffset += 8;
-
-    if (contributions.length === 0) {
-      doc.text("No hay contribuciones para este contrato.", 20, yOffset);
-      yOffset += 6;
-    } else {
-      // Encabezado de tabla de contribuciones
-      doc.setFont(undefined, "bold");
-      doc.text("ID", 20, yOffset);
-      doc.text("Monto", 60, yOffset);
-      doc.text("Fecha", 110, yOffset);
-      doc.setFont(undefined, "normal");
-      yOffset += 6;
-
-      contributions.forEach((c) => {
-        if (yOffset > 280) {
-          doc.addPage();
-          yOffset = 20;
-        }
-        doc.text(String(c.id), 20, yOffset);
-        doc.text(String(c.amount), 60, yOffset);
-        doc.text(new Date(c.date).toLocaleDateString(), 110, yOffset);
-        yOffset += 6;
-      });
-    }
-
-    // Generar nombre de archivo y descargar
-    const fileName = `reporte-contrato-${contract.id}.pdf`;
+    // Descargar el PDF
+    const fileName = `reporte-contrato-${contractId}-contribucion-${contributionId}.pdf`;
     doc.save(fileName);
   };
 
@@ -118,74 +139,84 @@ export const ReportsPage = () => {
             )
           }
         >
-          {combinedReports.length === 0 ? (
-            <p className="text-muted">No hay contratos disponibles para mostrar.</p>
+          {contributions.length === 0 ? (
+            <p className="text-muted">No hay cálculos disponibles para mostrar.</p>
           ) : (
             <Row className="g-4">
-              {combinedReports.map(({ contract, contributions }) => (
-                <Col key={contract.id} xs={12} md={6}>
-                  <Card>
-                    <Card.Body>
-                      <Card.Title>Contrato #{contract.id}</Card.Title>
-                      <Card.Text>
-                        <strong>Salario:</strong> {contract.salary} <br />
-                        <strong>Fecha inicio:</strong>{" "}
-                        {new Date(contract.fecha_inicio).toLocaleDateString()} <br />
-                        <strong>Fecha fin:</strong>{" "}
-                        {contract.fecha_fin
-                          ? new Date(contract.fecha_fin).toLocaleDateString()
-                          : "—"}{" "}
-                        <br />
-                        <strong>Otros campos:</strong>{" "}
-                        {Object.entries(contract)
-                          .filter(
-                            ([key]) =>
-                              ![
-                                "id",
-                                "salary",
-                                "fecha_inicio",
-                                "fecha_fin",
-                              ].includes(key)
-                          )
-                          .map(([key, value]) => `${key}: ${value}`)
-                          .join(", ") || "N/A"}
-                      </Card.Text>
+              {contributions.map((c) => {
+                const { contrato_detalle } = c;
+                const {
+                  id: contractId,
+                  titulo,
+                  tipo,
+                  salario,
+                  fecha_inicio,
+                  fecha_fin,
+                } = contrato_detalle;
 
-                      <hr />
+                return (
+                  <Col key={c.id} xs={12} md={6}>
+                    <Card>
+                      <Card.Body>
+                        <Card.Title>Contrato #{contractId}</Card.Title>
+                        <Card.Text>
+                          <strong>Título:</strong> {titulo} <br />
+                          <strong>Tipo:</strong> {tipo} <br />
+                          <strong>Salario Base:</strong> {salario} <br />
+                          <strong>Fecha inicio:</strong>{" "}
+                          {new Date(fecha_inicio).toLocaleDateString()} <br />
+                          <strong>Fecha fin:</strong>{" "}
+                          {fecha_fin ? new Date(fecha_fin).toLocaleDateString() : "—"}{" "}
+                        </Card.Text>
 
-                      <Card.Subtitle className="mb-2">Contribuciones:</Card.Subtitle>
-                      {contributions.length === 0 ? (
-                        <p className="text-muted">No hay contribuciones para este contrato.</p>
-                      ) : (
+                        <hr />
+
+                        <Card.Subtitle className="mb-2">
+                          Detalles de la Contribución
+                        </Card.Subtitle>
                         <ul className="ps-3">
-                          {contributions.map((c) => (
-                            <li key={c.id}>
-                              <strong>ID contribución:</strong> {c.id} —{" "}
-                              <strong>Monto:</strong> {c.amount} —{" "}
-                              <strong>Fecha:</strong>{" "}
-                              {new Date(c.date).toLocaleDateString()}
-                            </li>
-                          ))}
+                          <li>
+                            <strong>ID Contribución:</strong> {c.id}
+                          </li>
+                          <li>
+                            <strong>Fecha de Cálculo:</strong>{" "}
+                            {new Date(c.fecha_calculo).toLocaleDateString()}
+                          </li>
+                          <li>
+                            <strong>ARL:</strong> {c.arl}
+                          </li>
+                          <li>
+                            <strong>Cesantías:</strong> {c.cesantias}
+                          </li>
+                          <li>
+                            <strong>EPS:</strong> {c.eps}
+                          </li>
+                          <li>
+                            <strong>Pensión:</strong> {c.pension}
+                          </li>
+                          <li>
+                            <strong>Total:</strong> {c.total}
+                          </li>
                         </ul>
-                      )}
 
-                      {["empleador", "contador", "asesor_legal", "entidad_gubernamental"].includes(
-                        userRole
-                      ) && (
-                        <div className="d-flex justify-content-end mt-3">
-                          <Button
-                            variant="outline-secondary"
-                            onClick={() => downloadPDF(contract, contributions)}
-                          >
-                            <BsDownload size={20} className="me-2" />
-                            Descargar PDF
-                          </Button>
-                        </div>
-                      )}
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
+                        {["empleador", "contador", "asesor_legal", "entidad_gubernamental"].includes(
+                          userRole
+                        ) && (
+                          <div className="d-flex justify-content-end mt-3">
+                            <Button
+                              variant="outline-secondary"
+                              onClick={() => downloadPDF(c)}
+                            >
+                              <BsDownload size={20} className="me-2" />
+                              Descargar PDF
+                            </Button>
+                          </div>
+                        )}
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                );
+              })}
             </Row>
           )}
         </Tab>
