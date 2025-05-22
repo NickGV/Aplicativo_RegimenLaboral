@@ -117,16 +117,18 @@ export const ContractProvider = ({ children }) => {
     }
   };
 
-  const handleTerminateContract = async (id, terminationDate) => {
-    try {
-      await terminateContract(id, terminationDate);
-      setContracts((prev) => prev.filter((contract) => contract.id !== id));
-      setError(null);
-      
-    } catch (error) {
-      setError(error);
-    }
-  };
+ const handleTerminateContract = async (id, terminationDate) => {
+  if (user.rol !== 'empleador') {
+    console.error('No tienes permisos para realizar esta acción');
+    return false;
+  }
+  try {
+    await terminateContract(id, terminationDate);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
 
   useEffect(() => {
     if (user) {
