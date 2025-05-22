@@ -26,11 +26,11 @@ const CalculationsForm = ({ show, handleClose, contratos, guardarCalculo }) => {
     const salario = parseFloat(formData.salario) || 0;
     
     const nuevosResultados = {
-      eps: salario * 0.085,
-      arl: salario * 0.00522,
-      pension: salario * 0.12,
-      cesantias: salario * 0.0833,
-      total: salario * (0.085 + 0.00522 + 0.12 + 0.0833)
+      eps: parseFloat((salario * 0.085 ).toFixed(2)) ,
+      arl: parseFloat((salario * 0.00522).toFixed(2)),
+      pension: parseFloat((salario * 0.12 ).toFixed(2)),
+      cesantias: parseFloat((salario * 0.0833 ).toFixed(2)),
+      total: parseFloat((salario * (0.085 + 0.00522 + 0.12 + 0.0833) )).toFixed(2) 
     };
     
     setResultados(nuevosResultados);
