@@ -26,7 +26,7 @@ def contribution_list(request):
     List all contributions or create a new one.
     """
     if request.method == 'GET':
-        # Solo mostrar las contribuciones de los contratos del empleador
+       
         if request.user.rol == 'empleador':
             contributions = Contribution.objects.filter(contrato__empleador=request.user)
         else:
