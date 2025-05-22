@@ -231,7 +231,7 @@ export const ReportsPage = () => {
                           </li>
                         </ul>
 
-                        {["empleador", "contador", "asesor_legal", "entidad_gubernamental"].includes(
+                        {["empleador", "contador", "asesor_legal", "entidad_gubernamental", "empleado"].includes(
                           userRole
                         ) && (
                           <div className="d-flex justify-content-end mt-3">
