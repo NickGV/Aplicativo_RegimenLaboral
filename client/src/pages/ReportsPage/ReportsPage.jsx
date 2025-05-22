@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Tab, Tabs, Form } from "react-bootstrap";
 
-import  { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Button, Tab, Tabs } from "react-bootstrap";
 import { BsFileEarmark, BsDownload } from "react-icons/bs";
 import { jsPDF } from "jspdf";
 import useAuth from "../../hooks/useAuth";
@@ -41,16 +39,11 @@ export const ReportsPage = () => {
   const [filterContractId, setFilterContractId] = useState("");
   const [filterTitle, setFilterTitle] = useState("");
   const [filterType, setFilterType] = useState("");
-  const [filterSalary, setFilterSalary] = useState("");
   const [filterFechaInicio, setFilterFechaInicio] = useState("");
   const [filterFechaFin, setFilterFechaFin] = useState("");
   const [filterContributionId, setFilterContributionId] = useState("");
   const [filterFechaCalculo, setFilterFechaCalculo] = useState("");
-  const [filterArl, setFilterArl] = useState("");
-  const [filterCesantias, setFilterCesantias] = useState("");
-  const [filterEps, setFilterEps] = useState("");
-  const [filterPension, setFilterPension] = useState("");
-  const [filterTotal, setFilterTotal] = useState("");
+ 
 
   const downloadPDF = (contribution) => {
     const doc = new jsPDF();
@@ -168,12 +161,6 @@ export const ReportsPage = () => {
       return false;
     }
     if (
-      filterSalary &&
-      String(cd.salario) !== filterSalary.trim()
-    ) {
-      return false;
-    }
-    if (
       filterFechaInicio &&
       new Date(cd.fecha_inicio).toISOString().slice(0, 10) !== filterFechaInicio
     ) {
@@ -195,36 +182,6 @@ export const ReportsPage = () => {
     if (
       filterFechaCalculo &&
       new Date(c.fecha_calculo).toISOString().slice(0, 10) !== filterFechaCalculo
-    ) {
-      return false;
-    }
-    if (
-      filterArl &&
-      String(c.arl) !== filterArl.trim()
-    ) {
-      return false;
-    }
-    if (
-      filterCesantias &&
-      String(c.cesantias) !== filterCesantias.trim()
-    ) {
-      return false;
-    }
-    if (
-      filterEps &&
-      String(c.eps) !== filterEps.trim()
-    ) {
-      return false;
-    }
-    if (
-      filterPension &&
-      String(c.pension) !== filterPension.trim()
-    ) {
-      return false;
-    }
-    if (
-      filterTotal &&
-      String(c.total) !== filterTotal.trim()
     ) {
       return false;
     }
@@ -272,14 +229,6 @@ export const ReportsPage = () => {
                 />
               </Col>
               <Col md={2}>
-                <Form.Label>Salario</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={filterSalary}
-                  onChange={(e) => setFilterSalary(e.target.value)}
-                />
-              </Col>
-              <Col md={2}>
                 <Form.Label>Fecha Inicio</Form.Label>
                 <Form.Control
                   type="date"
@@ -309,46 +258,6 @@ export const ReportsPage = () => {
                   type="date"
                   value={filterFechaCalculo}
                   onChange={(e) => setFilterFechaCalculo(e.target.value)}
-                />
-              </Col>
-              <Col md={2}>
-                <Form.Label>ARL</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={filterArl}
-                  onChange={(e) => setFilterArl(e.target.value)}
-                />
-              </Col>
-              <Col md={2}>
-                <Form.Label>Cesantías</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={filterCesantias}
-                  onChange={(e) => setFilterCesantias(e.target.value)}
-                />
-              </Col>
-              <Col md={2}>
-                <Form.Label>EPS</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={filterEps}
-                  onChange={(e) => setFilterEps(e.target.value)}
-                />
-              </Col>
-              <Col md={2}>
-                <Form.Label>Pensión</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={filterPension}
-                  onChange={(e) => setFilterPension(e.target.value)}
-                />
-              </Col>
-              <Col md={2}>
-                <Form.Label>Total</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={filterTotal}
-                  onChange={(e) => setFilterTotal(e.target.value)}
                 />
               </Col>
             </Row>
