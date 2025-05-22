@@ -76,7 +76,13 @@ export const ContractsPage = () => {
     <Container className="py-4">
       {/* Encabezado */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Contratos</h2>
+        <h2>
+          {userRole === "empleado" 
+            ? "Mis Contratos" 
+            : userRole === "empleador" 
+              ? "Contratos de Empleados" 
+              : "Contratos"}
+        </h2>
         {userRole === "empleador" && (
           <Button variant="primary" onClick={() => setShowForm(true)}>
             <BiPlus /> Nuevo Contrato
@@ -143,9 +149,10 @@ export const ContractsPage = () => {
                         >
                           <BiTrash /> Eliminar
                         </Button>
-
                       </>
                     )}
+                    
+                    {/* All roles can view details/print */}
                     <Button
                       variant="outline-secondary"
                       size="sm"
@@ -154,9 +161,13 @@ export const ContractsPage = () => {
                     >
                       🧾 PDF
                     </Button>
-                    <Button variant="outline-success" size="sm">
-                      <BiDollar /> Pagar
-                    </Button>
+                    
+                    {/* Only employers can mark payments */}
+                    {userRole === "empleador" && (
+                      <Button variant="outline-success" size="sm">
+                        <BiDollar /> Pagar
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))

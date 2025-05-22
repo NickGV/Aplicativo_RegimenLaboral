@@ -22,15 +22,17 @@ def get_contribution(pk):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def contribution_list(request):
-    """
-    List all contributions or create a new one.
-    """
+
     if request.method == 'GET':
-       
+
         if request.user.rol == 'empleador':
+
             contributions = Contribution.objects.filter(contrato__empleador=request.user)
-        else:
+        elif request.user.rol in ['contador', 'asesor_legal', 'entidad_gubernamental']:
             contributions = Contribution.objects.all()
+        else:
+
+            contributions = Contribution.objects.none()
             
         serializer = ContributionSerializer(contributions, many=True)
         return Response(serializer.data)
@@ -46,9 +48,6 @@ def contribution_list(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def contribution_get(request, pk):
-    """
-    Retrieve a contribution by id.
-    """
     contribution = get_contribution(pk)
     if not contribution:
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -59,9 +58,7 @@ def contribution_get(request, pk):
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def contribution_update(request, pk):
-    """
-    Update a contribution by id.
-    """
+
     contribution = get_contribution(pk)
     if not contribution:
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -75,9 +72,6 @@ def contribution_update(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def contribution_delete(request, pk):
-    """
-    Delete a contribution by id.
-    """
     contribution = get_contribution(pk)
     if not contribution:
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)

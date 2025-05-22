@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import useAuth from "../../hooks/useAuth";
 import "./NavBar.css";
@@ -7,6 +7,7 @@ import "./NavBar.css";
 export const NavBar = () => {
   const { user, setUser } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   const location = useLocation();
   const pathname = location.pathname;
@@ -15,14 +16,13 @@ export const NavBar = () => {
     const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   }, [user]);
-
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     setUser(null);
     setIsLoggedIn(false);
-    window.location.href = "/auth/";
+    navigate("/auth");
   };
 
   return (
