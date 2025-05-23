@@ -56,7 +56,11 @@ export const AuthPage = () => {
     setLoginError("");
     try {
       const token = await handleLogin(loginData);
-      localStorage.setItem("token", token);
+      if (!token) {
+        setLoginError("Error al iniciar sesión. Intente de nuevo.");
+        return;
+      }
+      localStorage.setItem("access_token", token.access);
       navigate("/dashboard");
     } catch {
       setLoginError("Credenciales inválidas. Por favor intente de nuevo.");
@@ -82,7 +86,12 @@ export const AuthPage = () => {
         password: registerData.password,
         rol: registerData.rol,
       };
-      await handleRegister(userData);
+      const response = await handleRegister(userData);
+      if (!response) {
+        setRegisterError("Error al registrar el usuario. Intente de nuevo.");
+        return;
+      }
+      localStorage.setItem("access_token", response.access);
       navigate("/dashboard");
     } catch (error) {
       setRegisterError(error.message);

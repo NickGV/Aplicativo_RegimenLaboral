@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const [error, setError] = useState(null);
-
+  
   useEffect(() => {
     const validateToken = async () => {
       const token = localStorage.getItem("access_token");
@@ -148,7 +148,8 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       setError(err);
     }
-  };  useEffect(() => {
+  };
+    useEffect(() => {
     const REFRESH_INTERVAL = 15 * 60 * 1000;
     
     const refreshTokenSilently = async () => {

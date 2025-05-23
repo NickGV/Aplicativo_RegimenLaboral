@@ -8,6 +8,7 @@ import useContribution from "../../hooks/useContribution";
 import jsPDF from 'jspdf';
 import { BiSolidFilePdf } from 'react-icons/bi';
 
+
 const CalculationsPage = () => {
   const { user } = useAuth();
   const userRole = user ? user.rol : null;
@@ -221,11 +222,9 @@ const CalculationsPage = () => {
 
   return (
     <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>
-          {userRole === "empleado" 
-            ? "Mis Aportes" 
-            : "Cálculos de Aportes"}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <h2 className="mb-2 mb-md-0">
+          {userRole === "empleado" ? "Mis Aportes" : "Cálculos de Aportes"}
         </h2>
         {(userRole === "empleador" || userRole === "contador") && (
           <Button variant="primary" onClick={() => setShowForm(true)}>
@@ -236,12 +235,13 @@ const CalculationsPage = () => {
 
       <Form className="mb-4">
         <Row className="g-3">
-          <Col md={4}>
+          <Col xs={12} md={6} lg={4}>
             <Form.Label>Filtrar por Contrato</Form.Label>
             <Form.Control
               type="text"
               value={filterContract}
               onChange={(e) => setFilterContract(e.target.value)}
+              placeholder="Buscar por título de contrato"
             />
           </Col>
         </Row>
@@ -274,73 +274,72 @@ const CalculationsPage = () => {
           )}
         </Card>
       ) : (
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Contrato</th>
-              <th>Salario Base</th>
-              <th>EPS (8.5%)</th>
-              <th>ARL (0.522%)</th>
-              <th>Pensión (12%)</th>
-              <th>Cesantías (8.33%)</th>
-              <th>Total Aportes</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCalculos.map((calculo, index) => {
-              const contrato = contracts.find(
-                (c) => c.id === parseInt(calculo.contrato || calculo.contratoId)
-              );
-              return (
-                <tr key={index}>
-                  <td>{contrato?.titulo || "Contrato no encontrado"}</td>
-                  <td>
-                    ${parseInt(calculo.salarioBase || calculo.salario_base || 0).toLocaleString("es-CO")}
-                  </td>
-                  <td>${parseInt(calculo.eps || 0).toLocaleString("es-CO")}</td>
-                  <td>${parseInt(calculo.arl || 0).toLocaleString("es-CO")}</td>
-                  <td>${parseInt(calculo.pension || 0).toLocaleString("es-CO")}</td>
-                  <td>${parseInt(calculo.cesantias || 0).toLocaleString("es-CO")}</td>
-                  <td>${parseInt(calculo.total || 0).toLocaleString("es-CO")}</td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      {/* All roles can view details */}
-                      <Button 
-                        variant="outline-primary" 
-                        size="sm"
-                        onClick={() => handleShowDetail(calculo)}
-                        title="Ver detalles"
-                      >
-                        <BiInfoCircle />
-                      </Button>
-
-                      <Button 
-                        variant="outline-success" 
-                        size="sm"
-                        onClick={() => handlePrintCalculo(calculo)}
-                        title="Imprimir"
-                      >
-                        <BiPrinter />
-                      </Button>
-
-                      {(userRole === "empleador" || userRole === "contador") && (
+        <div className="table-responsive">
+          <Table striped bordered hover className="align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Contrato</th>
+                <th>Salario Base</th>
+                <th>EPS (8.5%)</th>
+                <th>ARL (0.522%)</th>
+                <th>Pensión (12%)</th>
+                <th>Cesantías (8.33%)</th>
+                <th>Total Aportes</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCalculos.map((calculo, index) => {
+                const contrato = contracts.find(
+                  (c) => c.id === parseInt(calculo.contrato || calculo.contratoId)
+                );
+                return (
+                  <tr key={index}>
+                    <td style={{ minWidth: 120 }}>{contrato?.titulo || "Contrato no encontrado"}</td>
+                    <td style={{ minWidth: 110 }}>
+                      ${parseInt(calculo.salarioBase || calculo.salario_base || 0).toLocaleString("es-CO")}
+                    </td>
+                    <td style={{ minWidth: 90 }}>${parseInt(calculo.eps || 0).toLocaleString("es-CO")}</td>
+                    <td style={{ minWidth: 90 }}>${parseInt(calculo.arl || 0).toLocaleString("es-CO")}</td>
+                    <td style={{ minWidth: 90 }}>${parseInt(calculo.pension || 0).toLocaleString("es-CO")}</td>
+                    <td style={{ minWidth: 90 }}>${parseInt(calculo.cesantias || 0).toLocaleString("es-CO")}</td>
+                    <td style={{ minWidth: 110 }}>${parseInt(calculo.total || 0).toLocaleString("es-CO")}</td>
+                    <td>
+                      <div className="d-flex flex-wrap gap-2">
                         <Button 
-                          variant="outline-danger" 
+                          variant="outline-primary" 
                           size="sm"
-                          onClick={() => handleDeleteCalculo(calculo.id)}
-                          title="Eliminar cálculo"
+                          onClick={() => handleShowDetail(calculo)}
+                          title="Ver detalles"
                         >
-                          <BiTrash />
+                          <BiInfoCircle />
                         </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
+                        <Button 
+                          variant="outline-success" 
+                          size="sm"
+                          onClick={() => handlePrintCalculo(calculo)}
+                          title="Imprimir"
+                        >
+                          <BiPrinter />
+                        </Button>
+                        {(userRole === "empleador" || userRole === "contador") && (
+                          <Button 
+                            variant="outline-danger" 
+                            size="sm"
+                            onClick={() => handleDeleteCalculo(calculo.id)}
+                            title="Eliminar cálculo"
+                          >
+                            <BiTrash />
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </div>
       )}
 
       <CalculationsForm
@@ -350,7 +349,7 @@ const CalculationsPage = () => {
         guardarCalculo={guardarCalculo}
       />
 
-      <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg">
+      <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>Detalle del Cálculo de Aportes</Modal.Title>
         </Modal.Header>
@@ -426,7 +425,7 @@ const CalculationsPage = () => {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="flex-wrap gap-2">
           <Button variant="secondary" onClick={() => setShowDetailModal(false)}>
             Cerrar
           </Button>
