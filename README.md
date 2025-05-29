@@ -2,24 +2,39 @@
 
 Aplicación web para la gestión de contratos, cálculos y reportes laborales. Permite a los usuarios autenticarse, gestionar contratos, realizar cálculos y visualizar reportes de manera sencilla y eficiente.
 
+## 🎥 Demo en video
+
+El video demostrativo se encuentra en la carpeta `screenshots/demo.mp4` del proyecto.
+
+[![Captura del video](./screenshots/video-thumbnail.png)](./screenshots/demo.mp4)
+_Haz clic en la imagen para abrir el video_
+
+## 🌟 Características destacadas
+
+- **Sistema de roles integrado**: Diferentes permisos para empleados, empleadores, contadores, asesores legales y entidades gubernamentales
+- **Interfaz intuitiva**: Diseño moderno y responsivo para facilitar la gestión laboral
+- **Cálculos automáticos**: Generación automática de aportes según la normativa colombiana
+- **Reportes detallados**: Exportación a PDF de todos los informes y cálculos
+- **Seguridad robusta**: Autenticación JWT y protección de rutas según rol de usuario
+
 ## Tecnologías utilizadas
 
 ### Frontend
 
-- **React** (Vite)
-- **React Router DOM**
-- **React Bootstrap**
-- **React Icons**
-- **jsPDF** para generación de documentos PDF
+- **React** (Vite) - Framework para construir interfaces de usuario
+- **React Router DOM** - Enrutamiento dinámico del lado del cliente
+- **React Bootstrap** - Implementación de Bootstrap para React
+- **React Icons** - Iconos vectoriales para mejorar la UI
+- **jsPDF** - Generación de documentos PDF desde el navegador
 
 ### Backend
 
-- **Django**
-- **Django REST Framework**
-- **JWT Authentication** (djangorestframework-simplejwt)
-- **PostgreSQL**
-- **Django Environ**
-- **Django CORS Headers**
+- **Django** - Framework web de alto nivel para desarrollo rápido
+- **Django REST Framework** - Potente y flexible toolkit para construir APIs Web
+- **JWT Authentication** (djangorestframework-simplejwt) - Autenticación segura basada en tokens
+- **PostgreSQL** - Sistema de gestión de bases de datos relacional
+- **Django Environ** - Manejo de variables de entorno
+- **Django CORS Headers** - Manejo de solicitudes CORS
 
 ## Funcionalidades principales
 
@@ -56,12 +71,13 @@ server/               # Carpeta del backend (Django)
 
 ## Instalación y ejecución
 
+### Frontend (React)
+
 1. **Clonar el repositorio**
 
 ```bash
 git clone https://github.com/NickGV/Aplicativo_RegimenLaboral.git
-
-cd client
+cd Aplicativo_RegimenLaboral/client
 ```
 
 2. **Instalar dependencias**
@@ -89,7 +105,7 @@ La aplicación estará disponible en [http://localhost:5173](http://localhost:51
 - Instala las dependencias de Python:
 
 ```bash
-  # Navegar a la carpeta del servidor
+# Navegar a la carpeta del servidor
 cd server
 
 # Crear entorno virtual
@@ -133,23 +149,45 @@ python manage.py runserver
 
 La API estará disponible en [http://localhost:8000](http://localhost:8000) (o el puerto que indique la terminal).
 
-### Uso de la aplicación
+## Guía de uso rápido
 
-Acceso al sistema
+### Acceso al sistema
 
-Registra una cuenta nueva o inicia sesión con credenciales existentes
-Los roles disponibles son: empleado, empleador, contador, asesor legal, entidad gubernamental
-Gestión de contratos
+- Registra una cuenta nueva o inicia sesión con credenciales existentes
+- Los roles disponibles son: empleado, empleador, contador, asesor legal, entidad gubernamental
 
-Como empleador, puedes crear, editar y eliminar contratos
-Proporciona la información del empleado, tipo de contrato, salario y otros detalles
-Cálculos de aportes
+### Gestión de contratos
 
-Genera cálculos de aportes al sistema de seguridad social basados en contratos
-Visualiza el desglose de EPS, ARL, pensión y cesantías
-Generación de reportes
+- Como empleador, puedes crear, editar y eliminar contratos
+- Proporciona la información del empleado, tipo de contrato, salario y otros detalles
 
-Descarga reportes en formato PDF con información detallada de contratos y aportes
+### Cálculos de aportes
+
+- Genera cálculos de aportes al sistema de seguridad social basados en contratos
+- Visualiza el desglose de EPS, ARL, pensión y cesantías
+
+### Generación de reportes
+
+- Descarga reportes en formato PDF con información detallada de contratos y aportes
+- Filtra y busca información específica usando los filtros disponibles
+
+## Seguridad y permisos
+
+### Roles de usuario
+
+- **Empleado**: Acceso solo a sus propios contratos y aportes
+- **Empleador**: Gestión completa de contratos y aportes de sus empleados
+- **Contador**: Acceso a todos los aportes para fines contables
+- **Asesor Legal**: Acceso a todos los contratos para verificación legal
+- **Entidad Gubernamental**: Acceso a reportes de fiscalización (simulado)
+
+## Contribuir al proyecto
+
+1. Haz un fork del repositorio
+2. Crea una rama para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
+3. Haz commit de tus cambios (`git commit -m 'Añadir nueva funcionalidad'`)
+4. Haz push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
 
 ## Notas
 
@@ -164,6 +202,10 @@ Descarga reportes en formato PDF con información detallada de contratos y aport
 - React Icons: https://react-icons.github.io/react-icons/
 - Django: https://www.djangoproject.com/
 - Django REST Framework: https://www.django-rest-framework.org/
+
+## Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
 
 ---
 
