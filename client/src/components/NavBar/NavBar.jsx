@@ -72,6 +72,14 @@ export const NavBar = () => {
               >
                 Reportes
               </Nav.Link>
+              <Nav.Link
+                as={Link}
+                to="/solicitudes"
+                active={pathname.startsWith("/solicitudes")}
+                className="fw-bold"
+              >
+                Solicitudes
+              </Nav.Link>
               {user && user.rol === "admin" && (
                 <Nav.Link
                   as={Link}

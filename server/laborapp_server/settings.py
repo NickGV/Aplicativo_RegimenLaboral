@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'User',
     'Contract',
     'Contribution',
+    'Request',
 ]
 
 MIDDLEWARE = [
