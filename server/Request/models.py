@@ -3,8 +3,8 @@ from User.models import User  # Ajusta si tu modelo de usuario tiene otro nombre
 
 class Solicitud(models.Model):
     TIPO_CHOICES = [
-        ('tipo1', 'Tipo 1'),
-        ('tipo2', 'Tipo 2'),
+    ('Actualización de información personal', 'Actualización de información personal'),
+    ('Agregar información', 'Agregar información'),
     ]
     tipo = models.CharField(max_length=50, choices=TIPO_CHOICES)
     descripcion = models.TextField()
