@@ -1,0 +1,45 @@
+/*
+ * Este archivo se carga DESPUÉS de bootstrap.min.css
+ * y usa las variables CSS de Bootstrap (ej. --bs-body-bg)
+ */
+
+/* -------------------- MODO OSCURO (.dark) -------------------- */
+body.dark {
+    /* 1. Cambia el fondo y texto PRINCIPAL de la aplicación (body) */
+    --bs-body-bg: #121212;      /* Fondo global muy oscuro */
+    --bs-body-color: #f8f9fa;   /* Texto base muy claro */
+    --bs-link-color: #79a6fe;   /* Enlaces en modo oscuro */
+    
+    /* 2. Colores SECUNDARIOS (Para la Card y componentes con bg-secondary) */
+    --bs-secondary-bg: #1e1e1e;
+    --bs-dark-bg: #000000;
+    
+    /* 3. Colores de la Card (Sobrescribe las clases bg-white/bg-light) */
+    /* Nota: Esto fuerza a que las clases bg-light y bg-white en la card usen el color oscuro */
+    --bs-light-bg: #1e1e1e;
+}
+
+/* Forzar la Card a usar los fondos oscuros cuando se usa la clase "bg-white" o "bg-light" 
+   que se usaron en tu Card.Header/Footer: */
+.dark .card {
+    background-color: var(--bs-secondary-bg) !important;
+    border-color: #333 !important; /* Borde oscuro */
+}
+
+/* Sobrescribe los fondos blancos que hayas forzado en el JSX */
+.dark .bg-white { 
+    background-color: var(--bs-secondary-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Asegurar que los InputGroup.Text (los iconos) se vean bien */
+.dark .input-group-text {
+    background-color: #333333;
+    border-color: #555555;
+    color: var(--bs-body-color);
+}
+
+/* Para los elementos con text-muted (como el párrafo bajo el título) */
+.dark .text-muted {
+    color: rgba(248, 249, 250, 0.6) !important; /* Un gris claro semitransparente */
+}
