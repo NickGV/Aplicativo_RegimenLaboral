@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import useAuth from "../../hooks/useAuth";
+import useTheme from "../../hooks/useTheme";
 import "./NavBar.css";
 
 export const NavBar = () => {
   const { user, setUser } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-
+  // OBTENER EL TEMA ACTUAL DEL HOOK
+  const {theme, toggleTheme} = useTheme();
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -95,6 +97,13 @@ export const NavBar = () => {
           <Nav className="ms-auto mb-2 mb-lg-0 d-flex align-items-center gap-2">
             {isLoggedIn ? (
               <>
+                <button 
+                  onClick={toggleTheme} 
+                  className={`theme-button ${theme}`}
+                >
+                  {/* Muestra un texto/ícono diferente basado en el tema actual */}
+                  {theme === 'light' ? '🌙' : '☀️'}
+                </button>
                 <Nav.Link
                   as={Link}
                   to="/info"

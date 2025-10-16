@@ -13,12 +13,13 @@ import {
 } from "react-bootstrap";
 import { BsEnvelope, BsLock, BsPerson } from "react-icons/bs";
 import useAuth from "../../hooks/useAuth";
+import useTheme from "../../hooks/useTheme";
 
 export const AuthPage = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const { handleRegister, handleLogin } = useAuth();
-
+  const [theme, toggleTheme] = useTheme();
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
@@ -101,18 +102,39 @@ export const AuthPage = () => {
   };
 
   return (
-    <Container fluid className="d-flex align-items-center justify-content-center min-vh-100">
+    <Container
+      fluid
+      // 1. ADAPTACIÓN DEL CONTENEDOR (Fondo de la página)
+      className={`d-flex align-items-center justify-content-center min-vh-100 position-relative ${theme === 'dark' ? 'bg-dark text-light' : 'bg-light text-dark'}`}
+    >
+      <Button 
+        onClick={toggleTheme}
+        className={`position-absolute top-0 end-0 m-3 ${theme === 'light' ? 'btn-outline-dark' : 'btn-outline-light'}`}
+        style={{ zIndex: 100 }}
+      >
+        {theme === 'light' ? '🌙' : '☀️'}
+      </Button>
       <Row className="w-100 justify-content-center">
         <Col xs={12} md={10} lg={7} xl={6} xxl={5}>
-          <Card className="shadow-lg border-0 rounded-4">
-            <Card.Header className="text-center bg-white border-0 pb-0 pt-4">
+          <Card
+            // 2. ADAPTACIÓN DE LA TARJETA (Card)
+            className={`shadow-lg border-0 rounded-4 ${theme === 'dark' ? 'bg-secondary text-light' : 'bg-white text-dark'}`}
+          >
+            <Card.Header
+              // 3. ADAPTACIÓN DEL HEADER (Eliminar bg-white fijo)
+              className={`text-center border-0 pb-0 pt-4 ${theme === 'dark' ? 'bg-secondary' : 'bg-white'}`}
+            >
               <h2
                 className="fw-bold mb-1"
                 style={{ letterSpacing: 1 }}
               >
                 {isLogin ? "Iniciar Sesión" : "Registrarse"}
               </h2>
-              <p className="text-muted mb-0" style={{ fontSize: 16 }}>
+              <p
+                // 4. ADAPTACIÓN DEL TEXTO SECUNDARIO (text-muted en claro / text-light en oscuro)
+                className={`mb-0 ${theme === 'dark' ? 'text-light-50' : 'text-muted'}`}
+                style={{ fontSize: 16 }}
+              >
                 {isLogin
                   ? "Ingrese sus credenciales para acceder al sistema"
                   : "Complete los datos para crear su cuenta"}
@@ -125,6 +147,7 @@ export const AuthPage = () => {
                   <Form.Group className="mb-3" controlId="login-email">
                     <Form.Label>Correo Electrónico</Form.Label>
                     <InputGroup>
+                      {/* Los iconos dentro de InputGroup.Text deberían heredar el color de la Card. */}
                       <InputGroup.Text>
                         <BsEnvelope />
                       </InputGroup.Text>
@@ -172,7 +195,8 @@ export const AuthPage = () => {
                   <div className="text-center mt-2">
                     <a
                       href="#"
-                      className="text-decoration-none text-muted small"
+                      // 5. ADAPTACIÓN DEL LINK DE CONTRASEÑA
+                      className={`text-decoration-none small ${theme === 'dark' ? 'text-info' : 'text-muted'}`}
                     >
                       ¿Olvidó su contraseña?
                     </a>
@@ -308,7 +332,10 @@ export const AuthPage = () => {
                 </Form>
               )}
             </Card.Body>
-            <Card.Footer className="text-center bg-white border-0 pb-4 pt-3">
+            <Card.Footer
+              // 6. ADAPTACIÓN DEL FOOTER (Eliminar bg-white fijo)
+              className={`text-center border-0 pb-4 pt-3 ${theme === 'dark' ? 'bg-secondary' : 'bg-white'}`}
+            >
               {isLogin ? (
                 <p className="mb-0">
                   ¿No tiene una cuenta?{" "}
