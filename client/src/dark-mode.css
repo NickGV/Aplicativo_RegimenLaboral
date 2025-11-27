@@ -11,7 +11,7 @@ body.dark {
     --bs-link-color: #79a6fe;   /* Enlaces en modo oscuro */
     
     /* 2. Colores SECUNDARIOS (Para la Card y componentes con bg-secondary) */
-    --bs-secondary-bg: #1e1e1e;
+    --bs-secondary-bg: #000000;
     --bs-dark-bg: #000000;
     
     /* 3. Colores de la Card (Sobrescribe las clases bg-white/bg-light) */
@@ -42,4 +42,193 @@ body.dark {
 /* Para los elementos con text-muted (como el párrafo bajo el título) */
 .dark .text-muted {
     color: rgba(248, 249, 250, 0.6) !important; /* Un gris claro semitransparente */
+}
+html, 
+body,
+#root {
+    height: 100%;
+    min-height: 100vh; /* Asegura la altura mínima del viewport */
+}
+
+/* Fuerza el fondo oscuro en toda la estructura cuando el body tiene la clase 'dark' */
+.dark, 
+.dark #root {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color);
+}
+/* -------------------- ADAPTACIÓN PARA REACT-CALENDAR -------------------- */
+
+.dark-calendar-container .react-calendar {
+    /* Fondo oscuro y texto claro para el calendario */
+    background-color: var(--bs-secondary-bg); 
+    border-color: #333; 
+    color: var(--bs-body-color);
+}
+
+/* Encabezados y días de la semana */
+.dark-calendar-container .react-calendar__navigation button,
+.dark-calendar-container .react-calendar__month-view__weekdays__weekday abbr,
+.dark-calendar-container .react-calendar__month-view__weekdays {
+    color: var(--bs-body-color); /* Asegura que el texto sea claro */
+}
+
+/* Días individuales */
+.dark-calendar-container .react-calendar__tile {
+    color: var(--bs-body-color);
+    background: none;
+}
+
+/* Hoy o día seleccionado */
+.dark-calendar-container .react-calendar__tile--now {
+    background: #343a40 !important; /* Un gris oscuro */
+    color: var(--bs-body-color);
+}
+
+/* Días hover */
+.dark-calendar-container .react-calendar__tile:enabled:hover {
+    background-color: #2a2a2a; /* Ligeramente más claro al pasar el mouse */
+}
+
+/* Rango de selección (ya deberías tener 'bg-primary text-white') */
+.dark-calendar-container .bg-primary {
+    /* Mantener el color de selección visible */
+    background-color: #0d6efd !important; 
+    color: #000 !important; /* Texto negro para contraste sobre el azul */
+}
+
+.nav-link-info {
+  border: 1px solid white;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-link-info:hover {
+  border: 1px solid lightgray;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* -------------------- MEJORAS ADICIONALES PARA MODO OSCURO -------------------- */
+
+/* Mejor contraste para las cards */
+.dark .card {
+    background-color: var(--bs-secondary-bg) !important;
+    border-color: #444 !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Mejorar los subtítulos en modo oscuro */
+.dark .text-secondary {
+    color: rgba(248, 249, 250, 0.7) !important;
+}
+
+/* Botones outline mejorados */
+.dark .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+}
+
+/* Tablas en modo oscuro */
+.dark .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--bs-body-color);
+    border-color: #444;
+}
+
+.dark .table-striped > tbody > tr:nth-of-type(odd) {
+    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* Mejorar los placeholders en inputs */
+.dark .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.dark .form-control {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: var(--bs-body-color);
+}
+
+.dark .form-control:focus {
+    background-color: #2d3748;
+    border-color: #4299e1;
+    color: var(--bs-body-color);
+    box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25);
+}
+
+/* -------------------- ESTILOS PARA FORMULARIOS EN MODO OSCURO -------------------- */
+
+.dark .form-control {
+    background-color: #2d3748 !important;
+    border-color: #4a5568 !important;
+    color: var(--bs-body-color) !important;
+}
+
+.dark .form-control:focus {
+    background-color: #2d3748 !important;
+    border-color: #4299e1 !important;
+    color: var(--bs-body-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25) !important;
+}
+
+.dark .form-select {
+    background-color: #2d3748 !important;
+    border-color: #4a5568 !important;
+    color: var(--bs-body-color) !important;
+}
+
+.dark .form-select:focus {
+    background-color: #2d3748 !important;
+    border-color: #4299e1 !important;
+    color: var(--bs-body-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25) !important;
+}
+
+.dark .form-label {
+    color: var(--bs-body-color) !important;
+}
+
+/* Placeholders en modo oscuro */
+.dark .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* -------------------- MEJORAS ADICIONALES MODO OSCURO -------------------- */
+
+/* Asegurar que todos los textos sean visibles */
+.dark .text-light {
+    color: var(--bs-body-color) !important;
+}
+
+/* Mejorar los botones en modo oscuro */
+.dark .btn-outline-primary {
+    border-color: #4299e1;
+    color: #4299e1;
+}
+
+.dark .btn-outline-primary:hover {
+    background-color: #4299e1;
+    border-color: #4299e1;
+    color: #000;
+}
+
+.dark .btn-outline-secondary {
+    border-color: #718096;
+    color: #718096;
+}
+
+.dark .btn-outline-secondary:hover {
+    background-color: #718096;
+    border-color: #718096;
+    color: #000;
+}
+
+/* Mejorar la tabla */
+.dark .table-hover tbody tr:hover {
+    color: var(--bs-body-color);
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+/* Spinner en modo oscuro */
+.dark .spinner-border {
+    color: #4299e1;
 }

@@ -13,7 +13,7 @@ import {
 } from "react-bootstrap";
 import { BsEnvelope, BsLock, BsPerson } from "react-icons/bs";
 import useAuth from "../../hooks/useAuth";
-import useTheme from "../../hooks/useTheme";
+import {useTheme} from "../../hooks/useTheme.jsx";
 
 export const AuthPage = () => {
   const navigate = useNavigate();
@@ -107,13 +107,6 @@ export const AuthPage = () => {
       // 1. ADAPTACIÓN DEL CONTENEDOR (Fondo de la página)
       className={`d-flex align-items-center justify-content-center min-vh-100 position-relative ${theme === 'dark' ? 'bg-dark text-light' : 'bg-light text-dark'}`}
     >
-      <Button 
-        onClick={toggleTheme}
-        className={`position-absolute top-0 end-0 m-3 ${theme === 'light' ? 'btn-outline-dark' : 'btn-outline-light'}`}
-        style={{ zIndex: 100 }}
-      >
-        {theme === 'light' ? '🌙' : '☀️'}
-      </Button>
       <Row className="w-100 justify-content-center">
         <Col xs={12} md={10} lg={7} xl={6} xxl={5}>
           <Card

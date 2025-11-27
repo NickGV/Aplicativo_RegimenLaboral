@@ -1,37 +1,43 @@
-const API_URL = "http://localhost:8000/api/solicitudes/";
+// src/services/requestService.js
+import api from './api';
 
-export async function getRequests() {
-  const response = await fetch(API_URL);
-  if (!response.ok) throw new Error("Error al obtener solicitudes");
-  return response.json();
-}
+export const getRequests = async () => {
+  try {
+    const response = await api.get('/solicitudes/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching requests:', error);
+    throw new Error(`Error ${error.response?.status}: ${error.response?.statusText}`);
+  }
+};
 
-export async function createRequest(data) {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      // Agrega el token si usas autenticación
-      "Authorization": `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) throw new Error("Error al crear solicitud");
-  return response.json();
-}
-export async function updateRequest(id, data) {
-  const response = await fetch(`${API_URL}${id}/`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) throw new Error("Error al actualizar solicitud");
-  return response.json();
-}
+export const createRequest = async (requestData) => {
+  try {
+    const response = await api.post('/solicitudes/', requestData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating request:', error);
+    console.log('Server response:', error.response?.data);
+    throw new Error(`Error al crear solicitud: Error ${error.response?.status}: ${error.response?.statusText}`);
+  }
+};
 
-export async function deleteRequest(id) {
-  const response = await fetch(`${API_URL}${id}/`, {
-    method: "DELETE",
-  });
-  if (!response.ok) throw new Error("Error al eliminar solicitud");
-}
+export const updateRequest = async (id, data) => {
+  try {
+    const response = await api.put(`/solicitudes/${id}/`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating request:', error);
+    throw error;
+  }
+};
+
+export const deleteRequest = async (id) => {
+  try {
+    const response = await api.delete(`/solicitudes/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting request:', error);
+    throw error;
+  }
+};
