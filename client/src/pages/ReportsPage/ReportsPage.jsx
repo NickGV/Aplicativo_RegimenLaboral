@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Tab, Tabs, Form } from "react-bootstrap";
-
 import { BsFileEarmark, BsDownload } from "react-icons/bs";
 import { jsPDF } from "jspdf";
 import useAuth from "../../hooks/useAuth";
 import useContribution from "../../hooks/useContribution";
 import { userDetail } from "../../services/authService";
+import { useTheme } from "../../hooks/useTheme.jsx";
 
 export const ReportsPage = () => {
   const { user } = useAuth();
   const { contributions } = useContribution();
   const userRole = user ? user.rol : null;
   const [employerData, setEmployerData] = useState({});
+  const [theme] = useTheme();
 
   useEffect(() => {
     const fetchEmployersData = async () => {
@@ -190,12 +191,16 @@ export const ReportsPage = () => {
 
   return (
     <Container className="p-4">
-      <h1 className="mb-4">Reportes</h1>
+      <h1 className={`mb-4 ${theme === 'dark' ? 'text-light' : ''}`}>Reportes</h1>
 
       <Tabs defaultActiveKey="all" id="reports-tabs" className="mb-4">
         <Tab
           eventKey="all"
-          title="Todos los reportes"
+          title={
+            <span className={theme === 'dark' ? 'text-light' : ''}>
+              Todos los reportes
+            </span>
+          }
           disabled={
             !["empleador", "contador", "asesor_legal", "entidad_gubernamental"].includes(
               userRole

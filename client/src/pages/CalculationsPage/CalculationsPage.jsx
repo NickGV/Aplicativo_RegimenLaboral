@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Container, Table, Spinner, Modal, Form, Row, Col } from "react-bootstrap";
+import { Card, Button, Container, Table, Spinner, Modal, Form, Row, Col, Alert } from "react-bootstrap";
 import { BiCalculator, BiPlus, BiTrash, BiInfoCircle, BiPrinter } from "react-icons/bi";
 import CalculationsForm from "../../components/Calculations/CalculationsForm";
 import useAuth from "../../hooks/useAuth";
 import useContracts from "../../hooks/useContracts";
 import useContribution from "../../hooks/useContribution";
+import { useTheme } from "../../hooks/useTheme.jsx";
 import jsPDF from 'jspdf';
 import { BiSolidFilePdf } from 'react-icons/bi';
-
 
 const CalculationsPage = () => {
   const { user } = useAuth();
@@ -19,12 +19,20 @@ const CalculationsPage = () => {
     handleCreateContribution,
     handleDeleteContribution 
   } = useContribution();
+  const [theme] = useTheme();
 
   const [showForm, setShowForm] = useState(false);
   const [calculos, setCalculos] = useState([]);
   const [filterContract, setFilterContract] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCalculo, setSelectedCalculo] = useState(null);
+
+  // Clases dinámicas para modo oscuro
+  const cardClass = theme === 'dark' ? 'bg-dark text-light' : 'bg-white';
+  const textClass = theme === 'dark' ? 'text-light' : '';
+  const subtitleClass = theme === 'dark' ? 'text-light-50' : 'text-secondary';
+  const tableVariant = theme === 'dark' ? 'dark' : '';
+  const modalClass = theme === 'dark' ? 'dark-modal' : '';
 
   useEffect(() => {
     if (contributions) {
@@ -221,7 +229,7 @@ const CalculationsPage = () => {
   });
 
   return (
-    <Container className="py-4">
+    <Container className={`py-4 ${textClass}`}>
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <h2 className="mb-2 mb-md-0">
           {userRole === "empleado" ? "Mis Aportes" : "Cálculos de Aportes"}
@@ -236,12 +244,13 @@ const CalculationsPage = () => {
       <Form className="mb-4">
         <Row className="g-3">
           <Col xs={12} md={6} lg={4}>
-            <Form.Label>Filtrar por Contrato</Form.Label>
+            <Form.Label className={textClass}>Filtrar por Contrato</Form.Label>
             <Form.Control
               type="text"
               value={filterContract}
               onChange={(e) => setFilterContract(e.target.value)}
               placeholder="Buscar por título de contrato"
+              className={theme === 'dark' ? 'bg-dark text-light border-secondary' : ''}
             />
           </Col>
         </Row>
@@ -252,13 +261,13 @@ const CalculationsPage = () => {
           <Spinner animation="border" />
         </div>
       ) : filteredCalculos.length === 0 ? (
-        <Card className="shadow-sm text-center py-5">
+        <Card className={`shadow-sm text-center py-5 ${cardClass}`}>
           <BiCalculator
-            className="text-muted mx-auto"
+            className={`mx-auto ${theme === 'dark' ? 'text-light-50' : 'text-muted'}`}
             style={{ fontSize: "3rem" }}
           />
-          <Card.Title className="mt-3">Cálculos de Aportes</Card.Title>
-          <Card.Text className="text-muted mb-4">
+          <Card.Title className={`mt-3 ${textClass}`}>Cálculos de Aportes</Card.Title>
+          <Card.Text className={`mb-4 ${subtitleClass}`}>
             No hay cálculos registrados
             <br />
             Realice su primer cálculo de aportes para ver los resultados aquí
@@ -275,7 +284,7 @@ const CalculationsPage = () => {
         </Card>
       ) : (
         <div className="table-responsive">
-          <Table striped bordered hover className="align-middle mb-0">
+          <Table striped bordered hover className="align-middle mb-0" variant={tableVariant}>
             <thead>
               <tr>
                 <th>Contrato</th>
@@ -349,28 +358,38 @@ const CalculationsPage = () => {
         guardarCalculo={guardarCalculo}
       />
 
-      <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
-        <Modal.Header closeButton>
+      <Modal 
+        show={showDetailModal} 
+        onHide={() => setShowDetailModal(false)} 
+        size="lg" 
+        centered
+        className={modalClass}
+        contentClassName={theme === 'dark' ? 'bg-dark text-light' : ''}
+      >
+        <Modal.Header 
+          closeButton 
+          className={theme === 'dark' ? 'bg-dark text-light border-secondary' : ''}
+        >
           <Modal.Title>Detalle del Cálculo de Aportes</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className={theme === 'dark' ? 'bg-dark text-light' : ''}>
           {selectedCalculo && (
             <div>
               <h5>Información del Contrato</h5>
-              <Table bordered className="mb-4">
+              <Table bordered className="mb-4" variant={tableVariant}>
                 <tbody>
                   <tr>
-                    <th className="bg-light" width="30%">Contrato</th>
+                    <th className={theme === 'dark' ? 'bg-secondary text-light' : 'bg-light'} width="30%">Contrato</th>
                     <td>
                       {contracts.find(c => c.id === parseInt(selectedCalculo.contrato || selectedCalculo.contratoId))?.titulo || "No disponible"}
                     </td>
                   </tr>
                   <tr>
-                    <th className="bg-light">Salario Base</th>
+                    <th className={theme === 'dark' ? 'bg-secondary text-light' : 'bg-light'}>Salario Base</th>
                     <td>${parseInt(selectedCalculo.salario_base || 0).toLocaleString("es-CO")}</td>
                   </tr>
                   <tr>
-                    <th className="bg-light">Fecha de Cálculo</th>
+                    <th className={theme === 'dark' ? 'bg-secondary text-light' : 'bg-light'}>Fecha de Cálculo</th>
                     <td>
                       {selectedCalculo.fecha_calculo 
                         ? new Date(selectedCalculo.fecha_calculo).toLocaleString() 
@@ -380,8 +399,8 @@ const CalculationsPage = () => {
                 </tbody>
               </Table>
               <h5>Desglose de Aportes</h5>
-              <Table bordered className="mb-4">
-                <thead className="bg-light">
+              <Table bordered className="mb-4" variant={tableVariant}>
+                <thead className={theme === 'dark' ? 'bg-secondary text-light' : 'bg-light'}>
                   <tr>
                     <th>Concepto</th>
                     <th>Porcentaje</th>
@@ -409,24 +428,27 @@ const CalculationsPage = () => {
                     <td>8.33%</td>
                     <td>${parseInt(selectedCalculo.cesantias || 0).toLocaleString("es-CO")}</td>
                   </tr>
-                  <tr className="table-primary">
+                  <tr className={theme === 'dark' ? 'bg-primary text-light' : 'table-primary'}>
                     <th colSpan="2">Total Aportes</th>
                     <th>${parseInt(selectedCalculo.total || 0).toLocaleString("es-CO")}</th>
                   </tr>
                 </tbody>
               </Table>
-              <div className="alert alert-info">
+              <Alert variant={theme === 'dark' ? 'secondary' : 'info'} className="mt-3">
                 <small>
                   <strong>Nota:</strong> Los cálculos se realizan de acuerdo a la normativa colombiana vigente. 
                   El cálculo de ARL asume un nivel de riesgo I (0.522%). Los porcentajes pueden variar según 
                   el sector y categoría de riesgo específico.
                 </small>
-              </div>
+              </Alert>
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer className="flex-wrap gap-2">
-          <Button variant="secondary" onClick={() => setShowDetailModal(false)}>
+        <Modal.Footer className={`flex-wrap gap-2 ${theme === 'dark' ? 'bg-dark border-secondary' : ''}`}>
+          <Button 
+            variant={theme === 'dark' ? 'outline-light' : 'secondary'} 
+            onClick={() => setShowDetailModal(false)}
+          >
             Cerrar
           </Button>
           <Button 

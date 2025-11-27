@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import useAuth from "../../hooks/useAuth";
-import useTheme from "../../hooks/useTheme";
+import { useTheme } from "../../hooks/useTheme.jsx";
 import "./NavBar.css";
 
 export const NavBar = () => {
   const { user, setUser } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-  // OBTENER EL TEMA ACTUAL DEL HOOK
-  const {theme, toggleTheme} = useTheme();
+  const [theme, toggleTheme] = useTheme();
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -18,6 +17,7 @@ export const NavBar = () => {
     const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   }, [user]);
+
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -29,9 +29,10 @@ export const NavBar = () => {
 
   return (
     <Navbar
-      bg="light"
+      bg={theme === 'dark' ? 'dark' : 'light'}
       expand="lg"
       sticky="top"
+      variant={theme === 'dark' ? 'dark' : 'light'}
       className="border-bottom shadow-sm"
     >
       <Container fluid>
@@ -45,7 +46,6 @@ export const NavBar = () => {
               <Nav.Link
                 as={Link}
                 to="/dashboard"
-                active={pathname === "/dashboard"}
                 className="fw-bold"
               >
                 Dashboard
@@ -53,7 +53,6 @@ export const NavBar = () => {
               <Nav.Link
                 as={Link}
                 to="/contratos"
-                active={pathname.startsWith("/contratos")}
                 className="fw-bold"
               >
                 Contratos
@@ -61,7 +60,6 @@ export const NavBar = () => {
               <Nav.Link
                 as={Link}
                 to="/calculos"
-                active={pathname.startsWith("/calculos")}
                 className="fw-bold"
               >
                 Cálculos
@@ -69,7 +67,6 @@ export const NavBar = () => {
               <Nav.Link
                 as={Link}
                 to="/reportes"
-                active={pathname.startsWith("/reportes")}
                 className="fw-bold"
               >
                 Reportes
@@ -77,16 +74,21 @@ export const NavBar = () => {
               <Nav.Link
                 as={Link}
                 to="/solicitudes"
-                active={pathname.startsWith("/solicitudes")}
                 className="fw-bold"
               >
                 Solicitudes
+              </Nav.Link>
+              <Nav.Link
+                as={Link}
+                to="/seguridad"
+                className="fw-bold"
+              >
+                Seguridad
               </Nav.Link>
               {user && user.rol === "admin" && (
                 <Nav.Link
                   as={Link}
                   to="/usuarios"
-                  active={pathname.startsWith("/usuarios")}
                   className="fw-bold"
                 >
                   Usuarios
@@ -97,19 +99,17 @@ export const NavBar = () => {
           <Nav className="ms-auto mb-2 mb-lg-0 d-flex align-items-center gap-2">
             {isLoggedIn ? (
               <>
-                <button 
-                  onClick={toggleTheme} 
-                  className={`theme-button ${theme}`}
+                <Button
+                  variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
+                  className="d-flex align-items-center me-2" 
+                  onClick={toggleTheme}
                 >
-                  {/* Muestra un texto/ícono diferente basado en el tema actual */}
                   {theme === 'light' ? '🌙' : '☀️'}
-                </button>
+                </Button>
                 <Nav.Link
                   as={Link}
                   to="/info"
-                  active={pathname === "/info"}
-                  variant="outline-secondary"
-                  className="d-flex align-items-center"
+                  className={`d-flex align-items-center me-2 ${theme === 'dark' ? 'nav-link-info' : ''}`}
                 >
                   👤
                 </Nav.Link>

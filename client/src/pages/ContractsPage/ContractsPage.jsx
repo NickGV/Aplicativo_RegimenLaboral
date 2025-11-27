@@ -4,11 +4,17 @@ import { BiSearch, BiPencil, BiTrash, BiDollar, BiPlus } from "react-icons/bi";
 import { ContractForm } from "../../components/Contracts/ContractForm";
 import useAuth from "../../hooks/useAuth";
 import useContracts from "../../hooks/useContracts";
+import { useTheme } from "../../hooks/useTheme.jsx";
 import jsPDF from "jspdf";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+
 
 export const ContractsPage = () => {
   const { user } = useAuth();
   const userRole = user ? user.rol : null;
+  const [theme] = useTheme();
+  const [date, setDate] = useState(new Date());
   const {
     contracts,
     loading,
@@ -21,6 +27,8 @@ export const ContractsPage = () => {
   const [filterTitle, setFilterTitle] = useState("");
   const [filterEmployee, setFilterEmployee] = useState("");
   const [filterEstado, setFilterEstado] = useState("");
+  const [selectedContract, setSelectedContract] = useState(null);
+
 
   const handleDelete = (id) => {
     if (window.confirm("¿Seguro que deseas eliminar este contrato?")) {
@@ -105,9 +113,13 @@ export const ContractsPage = () => {
     }
     return true;
   });
-
+  const cardClass = theme === 'dark' ? 'bg-dark text-light' : 'bg-white';
+  const textClass = theme === 'dark' ? 'text-light' : '';
+  const subtitleClass = theme === 'dark' ? 'text-light-50' : 'text-secondary';
+  const mutedTextClass = theme === 'dark' ? 'text-light-50' : 'text-muted';
+  const formControlClass = theme === 'dark' ? 'dark-form-control' : '';
   return (
-    <Container className="py-4">
+    <Container className={`py-4 ${textClass}`}>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>
           {userRole === "empleado" 
@@ -118,35 +130,39 @@ export const ContractsPage = () => {
         </h2>
         {userRole === "empleador" && (
           <Button variant="primary" onClick={() => setShowForm(true)}>
-            <BiPlus /> Nuevo Contrato
+            <BiPlus/> Nuevo Contrato
           </Button>
         )}
       </div>
-
-      <Form className="mb-4">
-        <Row className="g-3">
-          <Col md={4}>
-            <Form.Label>Título</Form.Label>
-            <Form.Control
+      <Form className={`mb-4 ${theme === 'dark' ? 'text-light' : ''}`}>
+        <Row className="g-3 align-items-end">
+          <Col md={3} className="ps-0">
+            <Form.Label>Título</Form.Label>
+            <Form.Control
               type="text"
               value={filterTitle}
               onChange={(e) => setFilterTitle(e.target.value)}
+              placeholder="Filtrar por título..."
+              className={formControlClass}
             />
           </Col>
-          <Col md={4}>
+          <Col md={3}>
             <Form.Label>Empleado</Form.Label>
             <Form.Control
               type="text"
               value={filterEmployee}
               onChange={(e) => setFilterEmployee(e.target.value)}
+              placeholder="Filtrar por empleado..."
+              className={formControlClass}
             />
           </Col>
-          <Col md={4}>
+          <Col md={3}>
             <Form.Label>Estado</Form.Label>
             <Form.Control
               as="select"
               value={filterEstado}
               onChange={(e) => setFilterEstado(e.target.value)}
+              className={formControlClass}
             >
               <option value="">Todos</option>
               <option value="Activo">Activo</option>
@@ -161,84 +177,121 @@ export const ContractsPage = () => {
           <Spinner animation="border" />
         </div>
       ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Empleado</th>
-              <th>Tipo</th>
-              <th>Fecha Inicio</th>
-              <th>Salario</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredContracts && filteredContracts.length > 0 ? (
-              filteredContracts.map((contrato) => (
-                <tr key={contrato.id}>
-                  <td>{contrato.titulo}</td>
-                  <td>
-                    {contrato.empleado?.username ||
-                      contrato.empleado?.email ||
-                      contrato.empleado}
-                  </td>
-                  <td>{contrato.tipo?.replace(/_/g, " ")}</td>
-                  <td>{contrato.fecha_inicio}</td>
-                  <td>${parseInt(contrato.salario).toLocaleString("es-CO")}</td>
-                  <td>
-                    <Button
-                      variant={contrato.estado === "Activo" ? "success" : "secondary"}
-                      size="sm"
-                      className="w-100"
-                      onClick={() => handleToggleEstado(contrato)}
-                    >
-                      {contrato.estado}
-                    </Button>
-                  </td>
-                  <td>
-                    {userRole === "empleador" && (
-                      <>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="me-2"
-                          onClick={() => handleEdit(contrato)}
-                        >
-                          <BiPencil /> Editar
-                        </Button>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          className="me-2"
-                          onClick={() => handleDelete(contrato.id)}
-                        >
-                          <BiTrash /> Eliminar
-                        </Button>
-                      </>
-                    )}
-                    
-                    {/* All roles can view details/print */}
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => generarPDF(contrato)}
-                    >
-                      🧾 PDF
-                    </Button>
+        <>
+          <Table striped bordered hover responsive variant={theme === 'dark' ? 'dark' : ''}>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Empleado</th>
+                <th>Tipo</th>
+                <th>Fecha Inicio</th>
+                <th>Salario</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredContracts && filteredContracts.length > 0 ? (
+                filteredContracts.map((contrato) => (
+                  <tr key={contrato.id}>
+                    <td>{contrato.titulo}</td>
+                    <td>
+                      {contrato.empleado?.username ||
+                        contrato.empleado?.email ||
+                        contrato.empleado}
+                    </td>
+                    <td>{contrato.tipo?.replace(/_/g, " ")}</td>
+                    <td>{contrato.fecha_inicio}</td>
+                    <td>${parseInt(contrato.salario).toLocaleString("es-CO")}</td>
+                    <td>
+                      <Button
+                        variant={contrato.estado === "Activo" ? "success" : "secondary"}
+                        size="sm"
+                        className="w-100"
+                        onClick={() => handleToggleEstado(contrato)}
+                      >
+                        {contrato.estado}
+                      </Button>
+                    </td>
+                    <td>
+                      {userRole === "empleador" && (
+                        <>
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="me-2"
+                            onClick={() => handleEdit(contrato)}
+                          >
+                            <BiPencil /> Editar
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            className="me-2"
+                            onClick={() => handleDelete(contrato.id)}
+                          >
+                            <BiTrash /> Eliminar
+                          </Button>
+                          <Button
+                            variant="outline-info"
+                            size="sm"
+                            onClick={() => setSelectedContract(contrato)}
+                          >
+                            Mostrar en Calendario
+                          </Button>
+
+
+                        </>
+                      )}
+                      
+                      {/* All roles can view details/print */}
+                      <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => generarPDF(contrato)}
+                      >
+                        🧾 PDF
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    No hay contratos registrados.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center">
-                  No hay contratos registrados.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+              )}
+            </tbody>
+          </Table>
+          <div className={`mt-4 ${theme === 'dark' ? 'dark-calendar-container' : ''}`}>
+            <Calendar
+              value={
+                selectedContract
+                  ? [new Date(selectedContract.fecha_inicio), new Date(selectedContract.fecha_fin)]
+                  : new Date()
+              }
+              selectRange={true} 
+              tileClassName={({ date, view }) => {
+                
+                if (!selectedContract) return null;
+                const start = new Date(selectedContract.fecha_inicio);
+                const end = new Date(selectedContract.fecha_fin);
+                if (date >= start && date <= end) return "bg-primary text-white"; // clases bootstrap
+              }}
+              readOnly={true} 
+            />
+          </div>
+
+          {selectedContract && (
+            <p className={theme === 'dark' ? 'text-light' : ''}>
+              Fecha de inicio: {new Date(selectedContract.fecha_inicio).toDateString()} <br />
+              Fecha de fin: {new Date(selectedContract.fecha_fin).toDateString()}
+            </p>
+          )}
+
+        </>
       )}
 
       <ContractForm

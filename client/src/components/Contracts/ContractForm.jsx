@@ -7,10 +7,13 @@ import {
   Row,
   Col,
   InputGroup,
+  Alert
 } from "react-bootstrap";
 import { BiX, BiSave } from "react-icons/bi";
 import useContract from "../../hooks/useContracts";
 import useAuth from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+
 export const ContractForm = ({ show, handleClose, initialData = null, onSave }) => {
   const [formData, setFormData] = useState({
     titulo: "",
@@ -25,16 +28,45 @@ export const ContractForm = ({ show, handleClose, initialData = null, onSave }) 
   const { handleListUsers } = useAuth();
   const { handleCreateContract } = useContract();
   const [empleados, setEmpleados] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEmpleados = async () => {
-      const users = await handleListUsers();
-      if (users && Array.isArray(users)) {
-        setEmpleados(users.filter((u) => u.rol === "empleado"));
+      // Verificar si hay token antes de hacer la petición
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        setError("No estás autenticado. Redirigiendo al login...");
+        setTimeout(() => navigate("/auth"), 2000);
+        return;
+      }
+
+      setLoading(true);
+      setError("");
+      
+      try {
+        const users = await handleListUsers();
+        if (users && Array.isArray(users)) {
+          setEmpleados(users.filter((u) => u.rol === "empleado"));
+        }
+      } catch (err) {
+        console.error("Error al cargar empleados:", err);
+        if (err.response?.status === 401) {
+          setError("Sesión expirada. Por favor inicia sesión nuevamente.");
+          // El interceptor ya se encargará de redirigir
+        } else {
+          setError("Error al cargar la lista de empleados");
+        }
+      } finally {
+        setLoading(false);
       }
     };
-    fetchEmpleados();
-  }, [handleListUsers]);
+
+    if (show) {
+      fetchEmpleados();
+    }
+  }, [handleListUsers, show, navigate]);
 
   useEffect(() => {
     if (initialData) {
@@ -59,8 +91,18 @@ export const ContractForm = ({ show, handleClose, initialData = null, onSave }) 
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    
+    // Verificar token antes de enviar
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setError("No estás autenticado. Por favor inicia sesión.");
+      return;
+    }
+
     console.log("Form data:", formData);
     
     // Preparar datos del contrato con el estado
@@ -70,16 +112,26 @@ export const ContractForm = ({ show, handleClose, initialData = null, onSave }) 
       empleado: formData.empleado,
     };
     
-    if (onSave) {
-      console.log("Using onSave function with data:", contractData);
-      onSave(contractData);
-    } else {
-      console.log("No onSave function provided, using handleCreateContract directly");
-      handleCreateContract(contractData);
+    try {
+      if (onSave) {
+        console.log("Using onSave function with data:", contractData);
+        await onSave(contractData);
+      } else {
+        console.log("No onSave function provided, using handleCreateContract directly");
+        await handleCreateContract(contractData);
+      }
+      
+      handleClose();
+    } catch (err) {
+      console.error("Error al guardar contrato:", err);
+      if (err.response?.status === 401) {
+        setError("Sesión expirada. Por favor inicia sesión nuevamente.");
+      } else {
+        setError("Error al guardar el contrato. Intenta nuevamente.");
+      }
     }
-    
-    handleClose();
   };
+
   return (
     <Modal show={show} onHide={handleClose} size="lg">
       <Modal.Header closeButton>
@@ -90,23 +142,38 @@ export const ContractForm = ({ show, handleClose, initialData = null, onSave }) 
           Complete la información para {initialData ? "editar" : "registrar"} un contrato
         </p>
 
+        {error && (
+          <Alert variant="danger" className="mb-3">
+            {error}
+          </Alert>
+        )}
+
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-4">
             <h5>Empleado</h5>
-            <Form.Select
-              name="empleado"
-              required
-              value={formData.empleado}
-              onChange={handleChange}
-              disabled={!!initialData}
-            >
-              <option value="">Seleccione un empleado</option>
-              {empleados.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.username || emp.email}
-                </option>
-              ))}
-            </Form.Select>
+            {loading ? (
+              <div className="text-center">
+                <div className="spinner-border spinner-border-sm" role="status">
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <span className="ms-2">Cargando empleados...</span>
+              </div>
+            ) : (
+              <Form.Select
+                name="empleado"
+                required
+                value={formData.empleado}
+                onChange={handleChange}
+                disabled={!!initialData}
+              >
+                <option value="">Seleccione un empleado</option>
+                {empleados.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.username || emp.email}
+                  </option>
+                ))}
+              </Form.Select>
+            )}
           </Form.Group>
 
           <Form.Group className="mb-4">
@@ -192,8 +259,8 @@ export const ContractForm = ({ show, handleClose, initialData = null, onSave }) 
             <Button variant="outline-secondary" onClick={handleClose}>
               <BiX /> Cancelar
             </Button>
-            <Button variant="primary" type="submit">
-              <BiSave /> Guardar Contrato
+            <Button variant="primary" type="submit" disabled={loading}>
+              <BiSave /> {loading ? "Guardando..." : "Guardar Contrato"}
             </Button>
           </div>
         </Form>

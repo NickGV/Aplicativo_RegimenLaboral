@@ -1,11 +1,27 @@
 import { Table, Badge } from "react-bootstrap";
+import { useTheme } from "../../hooks/useTheme.jsx";
 
 export const ContractList = ({ contracts = [] }) => {
+  const [theme] = useTheme();
+
   if (!contracts.length) {
-    return <div className="text-center text-muted py-4">No hay contratos registrados.</div>;
+    return (
+      <div className={`text-center py-4 ${theme === 'dark' ? 'text-light' : 'text-muted'}`}>
+        No hay contratos registrados.
+      </div>
+    );
   }
+
   return (
-    <Table striped bordered hover responsive size="sm" className="mb-0">
+    <Table 
+      striped 
+      bordered 
+      hover 
+      responsive 
+      size="sm" 
+      className="mb-0"
+      variant={theme === 'dark' ? 'dark' : ''}
+    >
       <thead>
         <tr>
           <th>Título</th>

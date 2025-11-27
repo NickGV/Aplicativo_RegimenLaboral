@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
 import useAuth from "../../hooks/useAuth";
+import { useTheme } from "../../hooks/useTheme.jsx"; // Importar el hook del tema
 
 export const UserPage = () => {
   const { user, setUser, handleUpdateUser, handleDeleteUser } = useAuth();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState(user);
+  const [theme] = useTheme(); // Usar el hook del tema
 
   if (!user) return <div className="d-flex justify-content-center mt-5"><p className="text-muted">No hay usuario logueado.</p></div>;
 
@@ -36,12 +38,20 @@ export const UserPage = () => {
     }
   };
 
+  // Clases condicionales para modo oscuro
+  const textClass = theme === 'dark' ? 'text-light' : '';
+  const cardClass = theme === 'dark' ? 'bg-dark text-light' : 'bg-white';
+  const headerClass = theme === 'dark' ? 'bg-secondary text-light' : 'bg-primary text-white';
+  const mutedTextClass = theme === 'dark' ? 'text-light-50' : 'text-muted';
+  const darkTextClass = theme === 'dark' ? 'text-light' : 'text-dark';
+  const formControlClass = theme === 'dark' ? 'dark-form-control' : '';
+
   return (
-    <Container className="py-5">
+    <Container className={`py-5 ${textClass}`}>
       <Row className="justify-content-center">
         <Col md={8} lg={6}>
-          <Card className="border-0 shadow-sm rounded-lg overflow-hidden">
-            <Card.Header className="bg-primary text-white py-3">
+          <Card className={`border-0 shadow-sm rounded-lg overflow-hidden ${cardClass}`}>
+            <Card.Header className={`py-3 ${headerClass}`}>
               <Card.Title className="mb-0">
                 <i className="fas fa-user-circle me-2"></i>
                 Perfil de Usuario
@@ -52,43 +62,44 @@ export const UserPage = () => {
               {editing ? (
                 <Form>
                   <Form.Group className="mb-3" controlId="username">
-                    <Form.Label className="text-secondary">Nombre</Form.Label>
+                    <Form.Label className={mutedTextClass}>Nombre</Form.Label>
                     <Form.Control
                       type="text"
                       value={formData.username}
                       onChange={(e) =>
                         setFormData({ ...formData, username: e.target.value })
                       }
-                      className="py-2"
+                      className={`py-2 ${formControlClass}`}
                     />
                   </Form.Group>
                   
                   <Form.Group className="mb-3" controlId="email">
-                    <Form.Label className="text-secondary">Correo electrónico</Form.Label>
+                    <Form.Label className={mutedTextClass}>Correo electrónico</Form.Label>
                     <Form.Control
                       type="email"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      className="py-2"
+                      className={`py-2 ${formControlClass}`}
                     />
                   </Form.Group>
                   
                   <Form.Group className="mb-3" controlId="rol">
-                    <Form.Label className="text-secondary">Rol</Form.Label>
+                    <Form.Label className={mutedTextClass}>Rol</Form.Label>
                     <Form.Control
                       type="text"
                       value={formData.rol}
                       onChange={(e) =>
                         setFormData({ ...formData, rol: e.target.value })
                       }
-                      className="py-2"
+                      className={`py-2 ${formControlClass}`}
+                      disabled // Normalmente el rol no se debería editar
                     />
                   </Form.Group>
                   
                   <Form.Group className="mb-4" controlId="numero_telefono">
-                    <Form.Label className="text-secondary">Teléfono</Form.Label>
+                    <Form.Label className={mutedTextClass}>Teléfono</Form.Label>
                     <Form.Control
                       type="text"
                       value={formData.numero_telefono}
@@ -98,7 +109,7 @@ export const UserPage = () => {
                           numero_telefono: e.target.value,
                         })
                       }
-                      className="py-2"
+                      className={`py-2 ${formControlClass}`}
                     />
                   </Form.Group>
                   
@@ -111,7 +122,7 @@ export const UserPage = () => {
                       Guardar cambios
                     </Button>
                     <Button 
-                      variant="outline-secondary" 
+                      variant={theme === 'dark' ? 'outline-light' : 'outline-secondary'} 
                       onClick={() => setEditing(false)}
                       className="flex-grow-1 py-2"
                     >
@@ -123,21 +134,21 @@ export const UserPage = () => {
                 <div>
                   <div className="mb-4">
                     <div className="d-flex align-items-center mb-3">
-                      <i className="fas fa-user text-primary me-3 fs-4"></i>
+                      <i className={`fas fa-user me-3 fs-4 ${theme === 'dark' ? 'text-light' : 'text-primary'}`}></i>
                       <div>
-                        <h5 className="mb-0 text-dark">{user.username}</h5>
-                        <small className="text-muted">{user.rol}</small>
+                        <h5 className={`mb-0 ${darkTextClass}`}>{user.username}</h5>
+                        <small className={mutedTextClass}>{user.rol}</small>
                       </div>
                     </div>
                     
                     <div className="ps-4">
                       <div className="d-flex align-items-center mb-2">
-                        <i className="fas fa-envelope text-muted me-3"></i>
-                        <span className="text-dark">{user.email}</span>
+                        <i className={`fas fa-envelope me-3 ${mutedTextClass}`}></i>
+                        <span className={darkTextClass}>{user.email}</span>
                       </div>
                       <div className="d-flex align-items-center">
-                        <i className="fas fa-phone text-muted me-3"></i>
-                        <span className="text-dark">{user.numero_telefono || "No especificado"}</span>
+                        <i className={`fas fa-phone me-3 ${mutedTextClass}`}></i>
+                        <span className={darkTextClass}>{user.numero_telefono || "No especificado"}</span>
                       </div>
                     </div>
                   </div>
@@ -152,7 +163,7 @@ export const UserPage = () => {
                       Editar perfil
                     </Button>
                     <Button 
-                      variant="outline-secondary" 
+                      variant={theme === 'dark' ? 'outline-light' : 'outline-secondary'} 
                       onClick={handleLogout}
                       className="py-2"
                     >
